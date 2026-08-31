@@ -1,0 +1,10 @@
+# 中間ファイル（再生成可能なのでコミットしない）
+*.mpi
+*.gff
+*.log
+*.pkl
+hap1.faa
+hap2.faa
+U25.fa
+ann/
+miniprot/
