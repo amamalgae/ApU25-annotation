@@ -322,7 +322,8 @@ def main():
         w()
         w("| Pfam 名 | 出現 |")
         w("|---|---|")
-        for name, n in unmapped_counts.most_common(20):
+        for name, n in sorted(unmapped_counts.items(),
+                              key=lambda kv: (-kv[1], kv[0]))[:20]:
             w(f"| `{name}` | {n} |")
         w()
 
@@ -421,7 +422,9 @@ def main():
         w()
         w("| # | PF アクセッション | Pfam 名 | 件数 |")
         w("|---|---|---|---|")
-        for i, (acc, n) in enumerate(counter.most_common(args.top), 1):
+        # sorted by count then accession, so ties do not reorder between runs
+        ranked = sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))
+        for i, (acc, n) in enumerate(ranked[:args.top], 1):
             w(f"| {i} | `{acc}` | `{acc2name.get(acc, '?')}` | {n} |")
         w()
         w(f"（異なるアクセッション {len(counter)} 種類、延べ {sum(counter.values())} 件）")

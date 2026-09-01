@@ -33,23 +33,23 @@ eggNOG-mapper 3.0.0-beta6 の `PFAMs` 列は **PF アクセッションを出力
 | `HA2` | 12 |
 | `SNARE_assoc` | 11 |
 | `Exostosin` | 8 |
-| `UPF0016` | 6 |
 | `Chorein_N` | 6 |
+| `UPF0016` | 6 |
 | `Prot_ATP_ID_OB` | 5 |
 | `zf-RanBP` | 5 |
-| `E2F_TDP` | 4 |
-| `Kelch_4` | 4 |
-| `TFIIS_C` | 4 |
 | `DUF4217` | 4 |
-| `Pyrid_oxidase_2` | 4 |
+| `E2F_TDP` | 4 |
 | `Glyco_hydro_31` | 4 |
+| `Kelch_4` | 4 |
+| `Pyrid_oxidase_2` | 4 |
+| `TFIIS_C` | 4 |
 | `rRNA_proc-arch` | 4 |
-| `YGGT` | 3 |
-| `NOT2_3_5` | 3 |
-| `Sec7_N` | 3 |
-| `STI1` | 3 |
-| `Rtt106` | 3 |
 | `IKI3` | 3 |
+| `MS_channel` | 3 |
+| `NOT2_3_5` | 3 |
+| `Pectate_lyase_3` | 3 |
+| `Rtt106` | 3 |
+| `STI1` | 3 |
 
 ## 1. 対象タンパク質
 
@@ -125,24 +125,24 @@ recall = 両方 / (両方 + InterPro のみ)。
 |---|---|---|---|
 | 1 | `PF00400` | `WD40` | 9 |
 | 2 | `PF12796` | `Ank_2` | 9 |
-| 3 | `PF13499` | `EF-hand_7` | 7 |
-| 4 | `PF00702` | `Hydrolase` | 7 |
+| 3 | `PF00702` | `Hydrolase` | 7 |
+| 4 | `PF13499` | `EF-hand_7` | 7 |
 | 5 | `PF25390` | `WD40_RLD` | 6 |
-| 6 | `PF21010` | `HA2_C` | 5 |
-| 7 | `PF04408` | `WHD_HA2` | 5 |
-| 8 | `PF16450` | `Prot_ATP_ID_OB_C` | 5 |
+| 6 | `PF04408` | `WHD_HA2` | 5 |
+| 7 | `PF16450` | `Prot_ATP_ID_OB_C` | 5 |
+| 8 | `PF21010` | `HA2_C` | 5 |
 | 9 | `PF01096` | `Zn_ribbon_TFIIS` | 4 |
 | 10 | `PF12937` | `F-box-like` | 4 |
-| 11 | `PF23231` | `HAT_Syf1_CNRKL1_C` | 4 |
-| 12 | `PF17177` | `PPR_long` | 4 |
-| 13 | `PF22042` | `EF-G_D2` | 3 |
-| 14 | `PF31213` | `HliA` | 3 |
-| 15 | `PF13432` | `TPR_16` | 3 |
-| 16 | `PF22919` | `ATP-synt_VA_C` | 3 |
+| 11 | `PF17177` | `PPR_long` | 4 |
+| 12 | `PF23231` | `HAT_Syf1_CNRKL1_C` | 4 |
+| 13 | `PF00097` | `zf-C3HC4` | 3 |
+| 14 | `PF00098` | `zf-CCHC` | 3 |
+| 15 | `PF00149` | `Metallophos` | 3 |
+| 16 | `PF00270` | `DEAD` | 3 |
 | 17 | `PF00561` | `Abhydrolase_1` | 3 |
-| 18 | `PF12697` | `Abhydrolase_6` | 3 |
-| 19 | `PF00924` | `MS_channel_2nd` | 3 |
-| 20 | `PF00149` | `Metallophos` | 3 |
+| 18 | `PF00924` | `MS_channel_2nd` | 3 |
+| 19 | `PF02037` | `SAP` | 3 |
+| 20 | `PF05347` | `Complex1_LYR` | 3 |
 
 （異なるアクセッション 549 種類、延べ 700 件）
 
@@ -153,23 +153,23 @@ recall = 両方 / (両方 + InterPro のみ)。
 | 1 | `PF00076` | `RRM_1` | 13 |
 | 2 | `PF00400` | `WD40` | 12 |
 | 3 | `PF00271` | `Helicase_C` | 9 |
-| 4 | `PF13419` | `HAD_2` | 6 |
-| 5 | `PF00270` | `DEAD` | 6 |
-| 6 | `PF00415` | `RCC1` | 6 |
+| 4 | `PF00270` | `DEAD` | 6 |
+| 5 | `PF00415` | `RCC1` | 6 |
+| 6 | `PF13419` | `HAD_2` | 6 |
 | 7 | `PF00004` | `AAA` | 5 |
-| 8 | `PF00036` | `EF-hand_1` | 4 |
-| 9 | `PF02518` | `HATPase_c` | 4 |
+| 8 | `PF00005` | `ABC_tran` | 4 |
+| 9 | `PF00036` | `EF-hand_1` | 4 |
 | 10 | `PF00176` | `SNF2-rel_dom` | 4 |
-| 11 | `PF00005` | `ABC_tran` | 4 |
-| 12 | `PF13857` | `Ank_5` | 4 |
+| 11 | `PF00249` | `Myb_DNA-binding` | 4 |
+| 12 | `PF02518` | `HATPase_c` | 4 |
 | 13 | `PF13202` | `EF-hand_5` | 4 |
 | 14 | `PF13637` | `Ank_4` | 4 |
-| 15 | `PF17862` | `AAA_lid_3` | 4 |
-| 16 | `PF00249` | `Myb_DNA-binding` | 4 |
-| 17 | `PF00481` | `PP2C` | 3 |
-| 18 | `PF00583` | `Acetyltransf_1` | 3 |
-| 19 | `PF12146` | `Hydrolase_4` | 3 |
-| 20 | `PF00856` | `SET` | 3 |
+| 15 | `PF13857` | `Ank_5` | 4 |
+| 16 | `PF17862` | `AAA_lid_3` | 4 |
+| 17 | `PF00023` | `Ank` | 3 |
+| 18 | `PF00153` | `Mito_carr` | 3 |
+| 19 | `PF00481` | `PP2C` | 3 |
+| 20 | `PF00583` | `Acetyltransf_1` | 3 |
 
 （異なるアクセッション 495 種類、延べ 663 件）
 
