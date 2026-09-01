@@ -46,11 +46,45 @@ python3 scripts/04_write_genbank.py  # GenBank 出力
 スクリプト: MIT。生成物: 原データが INSDC 公開データであるため CC0 相当だが、
 再配布時は Craig et al. 2025 の引用を必須とする。
 
+## 機能アノテーション（構造アノテーションとは別工程）
+
+### step 0 — InterPro Matches API
+
+UniParc に既収録の配列について、InterProScan 6 の計算済み結果を MD5 で引く。
+
+```bash
+python3 scripts/05_interpro_matches.py probe
+python3 scripts/05_interpro_matches.py fetch \
+    --endpoint https://www.ebi.ac.uk/interpro/matches/api/matches
+python3 scripts/05_interpro_matches.py report
+```
+
+7,413 配列中 3,899 (52.60%) が UniParc にヒット。未ヒット 3,514 配列は
+`step0_out/unmatched.faa`（ローカル InterProScan 6 の入力）。
+数値と実際のレスポンススキーマは `step0_out/SUMMARY.md`。
+
+### eggNOG-mapper 結果の取り込み
+
+```bash
+python3 scripts/ingest_eggnog.py \
+    --annotations raw/eggnog_7413.emapper.annotations \
+    --reference   raw/eggnog_noPfam1916.emapper.annotations \
+    --expect-rows 6588 --expect-pfam 5497
+```
+
+7,413 遺伝子中 6,588 (88.87%) に eggNOG 行が付く。結合結果は
+`eggnog_out/UTEX25_gene_table_eggnog.tsv`（既存 14 列 + `eggnog_*` 21 列）で、
+`annotation/UTEX25_gene_table.tsv` 自体は書き換えていない。
+充填率と実行時の記録は `eggnog_out/SUMMARY.md`。
+
 ## リポジトリ構成
 
 | パス | 内容 |
 |---|---|
 | `annotation/` | 生成物（GenBank 12染色体・GFF3・faa・fna・TSV） |
-| `scripts/` | 再現用パイプライン 4本 |
+| `raw/` | 外部サービスから取得した生の機能アノテーション（eggNOG-mapper） |
+| `scripts/` | 再現用パイプライン 4本 + 機能アノテーション 2本 |
+| `step0_out/` | InterPro Matches API の結果 |
+| `eggnog_out/` | eggNOG-mapper 取り込み結果 |
 | `docs/ANNOTATION.md` | 生成物の詳細・統計・限界 |
 | `docs/PUSH.md` | GitHub 運用メモ |
