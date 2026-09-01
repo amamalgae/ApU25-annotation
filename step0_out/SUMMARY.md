@@ -51,8 +51,8 @@
 OpenAPI スキーマに GO 用のフィールドが定義されておらず（`goXRefs` 等は存在しない）、
 全75バッチの生レスポンス 3.1 MB を走査しても `GO:` で始まる文字列は **0 件**だった。
 よって下の GO 数は「API が返さないので全て 0」であり、
-「この遺伝子群に GO が無い」という意味ではない。GO は別途 InterPro entry → GO の
-対応表（`interpro2go`）を引く必要がある。
+「この遺伝子群に GO が無い」という意味ではない。GO は InterPro entry → GO の
+対応表（`interpro2go`）で別途補った。§8 を参照。
 
 ## 3. 取得
 
@@ -119,7 +119,7 @@ OpenAPI スキーマに GO 用のフィールドが定義されておらず（`g
 
 | ファイル | 内容 |
 |---|---|
-| `lookup_status.tsv` | 7,413 行 + ヘッダ = 7,414 行。`protein_id` / `md5` / `length` / `has_internal_stop` / `in_uniparc` / `n_interpro` / `n_pfam` / `n_go`。未ヒット行の計数3列は空欄 |
+| `lookup_status.tsv` | 7,413 行 + ヘッダ = 7,414 行。`protein_id` / `md5` / `length` / `has_internal_stop` / `in_uniparc` / `n_interpro` / `n_pfam` / `n_go` / `n_interpro_gos` / `interpro_gos`（§8 で追加）。未ヒット行の計数列は空欄 |
 | `unmatched.faa` | 3,514 配列（`in_uniparc` = `no` の行数と一致） |
 | `matches_raw.json.gz` | 75 バッチの生レスポンス（gzip） |
 | `probe_response.json` | 1 件だけ POST した生レスポンス（スキーマ確定の根拠） |
@@ -132,4 +132,55 @@ OpenAPI スキーマに GO 用のフィールドが定義されておらず（`g
 ## 7. 次段階
 
 未ヒット 3,514 配列（内部終止 235 を含む）はローカル InterProScan 6 にかける必要がある。
-GO は API から取れないため、`interpro2go` を別途引くこと。
+GO は API から取れないので `interpro2go` で補完済み（§8）。
+
+<!-- BEGIN interpro2go -->
+## 8. GO の補完（interpro2go）
+
+Matches API は GO を返さないため、返ってきた IPR アクセッションに
+InterPro 公式の `interpro2go` を適用して補った（`raw/interpro2go`）。
+
+- `interpro2go` の対応: 30122 対応 / 14803 IPR エントリ
+- 本データに出現した IPR: 5634 種類、うち GO が引けたもの 2622 種類 (46.54 %)
+
+`lookup_status.tsv` に `n_interpro_gos` / `interpro_gos` 列を追加した。
+
+| 指標 | 件数 | 全 7413 に対して |
+|---|---|---|
+| IPR が 1 つ以上あるタンパク質 | 3294 | 44.44 % |
+| **GO が 1 つ以上引けたタンパク質** | **2417** | **32.60 %** |
+
+GO が引けた 2417 タンパク質あたりの GO 数: Q1 1 / 中央値 2 / Q3 3 / 最大 12
+
+### 8.1 eggNOG の GO 列との比較（別列として併存、上書きしていない）
+
+- interpro2go 由来: `step0_out/lookup_status.tsv` の `interpro_gos`
+- eggNOG 由来: `annotation/UTEX25_gene_table_eggnog.tsv` の `eggnog_GOs`
+
+| 区分 | タンパク質数 | 全 7413 に対して |
+|---|---|---|
+| interpro2go に GO あり | 2417 | 32.60 % |
+| eggNOG に GO あり | 4491 | 60.58 % |
+| 両方にあり | 1883 | 25.40 % |
+| interpro2go のみ | 534 | 7.20 % |
+| eggNOG のみ | 2608 | 35.18 % |
+| どちらにも無し | 2388 | 32.21 % |
+| **少なくとも一方にあり** | **5025** | **67.79 %** |
+
+両方に GO がある 1883 タンパク質での GO 項目単位の重なり:
+
+| 区分 | GO 項目の延べ数 |
+|---|---|
+| 両方にある | 2012 |
+| interpro2go のみ | 2834 |
+| eggNOG のみ | 36110 |
+
+タンパク質ごとの Jaccard 係数: Q1 0.000 / 中央値 0.048 / Q3 0.105
+（完全一致 2 タンパク質）
+
+2 つの GO 集合は由来が異なる。`interpro2go` は InterPro エントリに対して
+キュレーションされた直接の対応であり、eggNOG の `GOs` は seed ortholog の
+GO を転写したもので、`go_namespace_split=True` の設定で出力されている。
+重なりの数値はこの違いを込みで見る必要がある。
+
+<!-- END interpro2go -->
