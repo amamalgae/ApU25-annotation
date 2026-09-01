@@ -1,0 +1,60 @@
+# eggNOG-mapper provenance
+#
+# Every comment line of each .emapper.annotations file,
+# reproduced verbatim by scripts/ingest_eggnog.py.
+# The web job page and these recorded command lines are known
+# not to agree; these lines are what the runs actually used.
+
+==============================================================================
+MERGED: raw/eggnog_7413.emapper.annotations
+==============================================================================
+## Tue Sep  1 04:04:27 2026
+## emapper-3.0.0-beta6
+## /usr/local/bin/emapper.py -i input.fasta -o query --output_dir output --temp_dir output --data_dir /eggnog-data --cpu 10 --override --itype proteins -m diamond --dmnd_iterate no --dmnd_block_size 2 --dmnd_index_chunks 4
+##
+## applied filters:
+##   annot_evalue=0.001
+##   annot_score=null
+##   donor_pool=closest
+##   excluded_taxa=null
+##   go_namespace_split=True
+##   lazy_cascade=True
+##   pfam_realign=none
+##   sort_entries=True
+##   target_orthologs=all
+##   target_taxa=null
+##   tax_scope=auto
+## annotation_confidence: one char per annotation field
+## confidence codes: h=high m=medium l=low -=not annotated
+## confidence field order: Preferred_name GOs EC KEGG_ko KEGG_Pathway KEGG_Module KEGG_Reaction KEGG_rclass BRITE KEGG_TC CAZy BiGG_Reaction PFAMs
+#query	seed_ortholog	evalue	score	eggNOG_OGs	tax_ceiling	farthest_donor_lineage	COG_category	Preferred_name	GOs	EC	KEGG_ko	KEGG_Pathway	KEGG_Module	KEGG_Reaction	KEGG_rclass	BRITE	KEGG_TC	CAZy	BiGG_Reaction	PFAMs	annotation_confidence
+## 6998 queries scanned
+## Total time (seconds): 69.67751693725586
+## Rate: 100.43 q/s
+
+==============================================================================
+REFERENCE ONLY: raw/eggnog_noPfam1916.emapper.annotations
+==============================================================================
+## Tue Sep  1 00:40:57 2026
+## emapper-3.0.0-beta6
+## /usr/local/bin/emapper.py -i input.fasta -o query --output_dir output --temp_dir output --data_dir /eggnog-data --cpu 10 --override --itype proteins -m diamond --dmnd_iterate no --dmnd_block_size 2 --dmnd_index_chunks 4
+##
+## applied filters:
+##   annot_evalue=0.001
+##   annot_score=null
+##   donor_pool=closest
+##   excluded_taxa=null
+##   go_namespace_split=True
+##   lazy_cascade=True
+##   pfam_realign=none
+##   sort_entries=True
+##   target_orthologs=all
+##   target_taxa=null
+##   tax_scope=auto
+## annotation_confidence: one char per annotation field
+## confidence codes: h=high m=medium l=low -=not annotated
+## confidence field order: Preferred_name GOs EC KEGG_ko KEGG_Pathway KEGG_Module KEGG_Reaction KEGG_rclass BRITE KEGG_TC CAZy BiGG_Reaction PFAMs
+#query	seed_ortholog	evalue	score	eggNOG_OGs	tax_ceiling	farthest_donor_lineage	COG_category	Preferred_name	GOs	EC	KEGG_ko	KEGG_Pathway	KEGG_Module	KEGG_Reaction	KEGG_rclass	BRITE	KEGG_TC	CAZy	BiGG_Reaction	PFAMs	annotation_confidence
+## 1501 queries scanned
+## Total time (seconds): 0.9673745632171631
+## Rate: 1551.62 q/s

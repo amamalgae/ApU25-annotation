@@ -73,18 +73,30 @@ python3 scripts/ingest_eggnog.py \
 ```
 
 7,413 遺伝子中 6,588 (88.87%) に eggNOG 行が付く。結合結果は
-`eggnog_out/UTEX25_gene_table_eggnog.tsv`（既存 14 列 + `eggnog_*` 21 列）で、
+`annotation/UTEX25_gene_table_eggnog.tsv`（既存 14 列 + `eggnog_*` 21 列）で、
 `annotation/UTEX25_gene_table.tsv` 自体は書き換えていない。
-充填率と実行時の記録は `eggnog_out/SUMMARY.md`。
+充填率・実行コマンド・`pfam_realign` の実測値は `docs/EGGNOG_REPORT.md`、
+emapper の `#` 行の全文は `annotation/eggnog_provenance.txt`。
+
+### Pfam 呼び出しの突き合わせ
+
+```bash
+python3 scripts/compare_pfam.py
+```
+
+InterProScan 6 と eggNOG の両方に結果がある 3,580 タンパク質について、
+PF アクセッション集合を比較。InterProScan を正解として F1 = 83.87%、
+タンパク質単位の完全一致 74.64%。詳細は `docs/PFAM_CONCORDANCE.md`。
 
 ## リポジトリ構成
 
 | パス | 内容 |
 |---|---|
 | `annotation/` | 生成物（GenBank 12染色体・GFF3・faa・fna・TSV） |
-| `raw/` | 外部サービスから取得した生の機能アノテーション（eggNOG-mapper） |
-| `scripts/` | 再現用パイプライン 4本 + 機能アノテーション 2本 |
+| `raw/` | 外部から取得した入力（eggNOG-mapper 出力・Pfam 対応表・interpro2go） |
+| `scripts/` | 再現用パイプライン 4本 + 機能アノテーション 3本 |
 | `step0_out/` | InterPro Matches API の結果 |
-| `eggnog_out/` | eggNOG-mapper 取り込み結果 |
 | `docs/ANNOTATION.md` | 生成物の詳細・統計・限界 |
+| `docs/EGGNOG_REPORT.md` | eggNOG 取り込みの実行条件とカバレッジ |
+| `docs/PFAM_CONCORDANCE.md` | InterProScan 6 と eggNOG の Pfam 一致度 |
 | `docs/PUSH.md` | GitHub 運用メモ |

@@ -30,6 +30,9 @@ Usage:
         --annotations raw/eggnog_7413.emapper.annotations \\
         --reference   raw/eggnog_noPfam1916.emapper.annotations \\
         --expect-rows 6588 --expect-pfam 5497
+
+Outputs: annotation/UTEX25_gene_table_eggnog.tsv,
+annotation/eggnog_provenance.txt, docs/EGGNOG_REPORT.md.
 """
 
 from __future__ import annotations
@@ -40,7 +43,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_TABLE = ROOT / "annotation" / "UTEX25_gene_table.tsv"
-OUT_DIR = ROOT / "eggnog_out"
+DEFAULT_OUT_TABLE = ROOT / "annotation" / "UTEX25_gene_table_eggnog.tsv"
+DEFAULT_OUT_REPORT = ROOT / "docs" / "EGGNOG_REPORT.md"
+DEFAULT_OUT_PROVENANCE = ROOT / "annotation" / "eggnog_provenance.txt"
 
 # emapper writes this single character for "no value".
 EMPTY = {"", "-"}
@@ -65,6 +70,8 @@ class Emapper:
         self.path = path
         self.preamble: list[str] = []   # '##' lines above the header
         self.trailer: list[str] = []    # '##' lines below the last row
+        self.raw_comments: list[str] = []   # every '#' line, verbatim
+        self.header_line: str = ""          # the header line, verbatim
         self.columns: list[str] = []
         self.rows: list[dict[str, str]] = []
         self._parse()
@@ -77,6 +84,7 @@ class Emapper:
                 if not line.strip():
                     continue
                 if line.startswith("##"):
+                    self.raw_comments.append(line)
                     (self.trailer if self.columns else self.preamble).append(
                         line.lstrip("#").strip())
                     continue
@@ -91,6 +99,8 @@ class Emapper:
                         raise ValueError(
                             f"{self.path}:{lineno}: a second header line")
                     self.columns = [f.lstrip("#").strip() for f in fields]
+                    self.raw_comments.append(line)
+                    self.header_line = line
                     header_line = lineno
                     continue
                 if not self.columns:
@@ -200,7 +210,10 @@ def main():
     ap.add_argument("--gene-table", type=Path, default=DEFAULT_TABLE)
     ap.add_argument("--key", default="locus_tag",
                     help="gene-table column joined against the query column")
-    ap.add_argument("--out-dir", type=Path, default=OUT_DIR)
+    ap.add_argument("--out-table", type=Path, default=DEFAULT_OUT_TABLE)
+    ap.add_argument("--out-report", type=Path, default=DEFAULT_OUT_REPORT)
+    ap.add_argument("--out-provenance", type=Path,
+                    default=DEFAULT_OUT_PROVENANCE)
     ap.add_argument("--expect-rows", type=int, default=None)
     ap.add_argument("--expect-pfam", type=int, default=None)
     ap.add_argument("--pfam-column", default="PFAMs")
@@ -237,8 +250,8 @@ def main():
     carried = [c for c in ann.columns if c != ann.query_column]
     out_header = header + [f"eggnog_{c}" for c in carried]
 
-    args.out_dir.mkdir(exist_ok=True)
-    merged_path = args.out_dir / "UTEX25_gene_table_eggnog.tsv"
+    merged_path = args.out_table
+    merged_path.parent.mkdir(parents=True, exist_ok=True)
     n_joined = 0
     per_column = {c: 0 for c in carried}
     with open(merged_path, "w") as fh:
@@ -257,6 +270,7 @@ def main():
                         per_column[c] += 1
             fh.write("\t".join(row + extra) + "\n")
 
+    write_provenance(args, ann, references)
     write_report(args, ann, references, rows, n_joined, per_column, carried,
                  merged_path)
     print(f"wrote {merged_path} ({len(rows)} rows + header)")
@@ -264,76 +278,152 @@ def main():
           f"({100 * n_joined / len(rows):.2f}%)")
 
 
+
+
+def rel(path) -> Path:
+    path = Path(path).resolve()
+    try:
+        return path.relative_to(ROOT)
+    except ValueError:
+        return path
+
+
+# --------------------------------------------------------------------------- #
+# Reports
+# --------------------------------------------------------------------------- #
+
+def write_provenance(args, ann, references) -> None:
+    """Dump every '#' line of every emapper file, verbatim, to one file.
+
+    This is the evidence for what the runs actually did, so nothing here is
+    reformatted, reordered, or summarised.
+    """
+    out = args.out_provenance
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("w") as fh:
+        fh.write("# eggNOG-mapper provenance\n")
+        fh.write("#\n")
+        fh.write("# Every comment line of each .emapper.annotations file,\n")
+        fh.write("# reproduced verbatim by scripts/ingest_eggnog.py.\n")
+        fh.write("# The web job page and these recorded command lines are known\n")
+        fh.write("# not to agree; these lines are what the runs actually used.\n")
+        for label, src in [("MERGED", ann)] + [("REFERENCE ONLY", r)
+                                               for r in references]:
+            fh.write("\n")
+            fh.write("=" * 78 + "\n")
+            fh.write(f"{label}: {rel(src.path)}\n")
+            fh.write("=" * 78 + "\n")
+            for line in src.raw_comments:
+                fh.write(line + "\n")
+    print(f"wrote {out}")
+
+
+# Benchmark figures for Pfam calling mode, quoted from the reference below.
+# They are literature values, not measurements on this dataset.
+PFAM_F1_DENOVO = "89.7%"
+PFAM_F1_REALIGN = "98.9%"
+PFAM_CITATION = ("Cantalapiedra CP et al. (2021) *Mol Biol Evol* 38(12):5825. "
+                 "DOI: 10.1093/molbev/msab293")
+
+
 def write_report(args, ann, references, rows, n_joined, per_column, carried,
                  merged_path):
     total = len(rows)
-    out = args.out_dir / "SUMMARY.md"
-    L = out.open("w")
-    w = lambda s="": L.write(s + "\n")
+    out = args.out_report
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fh = out.open("w")
+    w = lambda s="": fh.write(s + "\n")
 
-    w("# eggNOG-mapper 機能アノテーションの取り込み")
-    w()
-    def rel(path):
-        path = Path(path).resolve()
-        try:
-            return path.relative_to(ROOT)
-        except ValueError:
-            return path
+    pfam_realign = ann.filters.get("pfam_realign")
 
-    w(f"生成: `scripts/ingest_eggnog.py` / 入力 `{rel(args.annotations)}`")
-    w(f"構造アノテーション: `{rel(args.gene_table)}`（{total} 遺伝子）")
-    w(f"出力: `{rel(merged_path)}`")
+    w("# eggNOG-mapper アノテーションの取り込み")
     w()
-    w("## 1. 取り込んだファイルのヘッダ（実測、決め打ちなし）")
+    w(f"- 生成: `scripts/ingest_eggnog.py`")
+    w(f"- 取り込み対象: `{rel(args.annotations)}`")
+    w(f"- 構造アノテーション: `{rel(args.gene_table)}`（{total} 遺伝子）")
+    w(f"- 出力表: `{rel(merged_path)}`")
+    w(f"- 実行条件の証跡（`#` 行の全文）: `{rel(args.out_provenance)}`")
     w()
-    w(f"- 検出したヘッダ行のクエリ列名: `{ann.query_column}`")
-    w(f"- 列数: {len(ann.columns)}")
-    w(f"- 列名: {', '.join('`' + c + '`' for c in ann.columns)}")
-    w(f"- データ行数: **{len(ann.rows)}**")
+    w("すべて実測値。ベンチマーク F1 の 2 値のみ文献値で、出典を明示している。")
     w()
-    w("## 2. 実行時の記録（`##` 行のまま）")
+
+    # -- 1. header ---------------------------------------------------------- #
+    w("## 1. ヘッダ（決め打ちせず実ファイルから検出）")
+    w()
+    w(f"- 検出したクエリ列名: `{ann.query_column}`")
+    w(f"- 列数: {len(ann.columns)} / データ行数: **{len(ann.rows)}**")
+    w()
+    w("```")
+    w(ann.header_line)
+    w("```")
+    w()
+
+    # -- 2. command line ---------------------------------------------------- #
+    w("## 2. ヘッダから抽出した実行コマンド（原文のまま）")
     w()
     w(f"- version: `{ann.version}`")
-    w("- command:")
     w()
     w("```")
-    w(ann.command or "(なし)")
+    w(ann.command or "(command line not recorded in the header)")
     w("```")
     w()
-    if ann.filters:
-        w("- applied filters:")
+    w("`## applied filters:` ブロックの実測値:")
+    w()
+    w("| key | value |")
+    w("|---|---|")
+    for k, v in ann.filters.items():
+        mark = " **←**" if k == "pfam_realign" else ""
+        w(f"| `{k}` | `{v}`{mark} |")
+    w()
+    w(f"**`pfam_realign` の実測値: `{pfam_realign}`**")
+    w()
+    w("ウェブサーバ (https://eggnog-mapper.cgmlab.org/, v3-beta6) のジョブページ表示と")
+    w("この記録は一致しないことが確認されている。上に転記したのは記録された方、")
+    w("すなわち実際に走った設定である。")
+    w()
+
+    # -- 3. what pfam_realign=none means ------------------------------------ #
+    if pfam_realign == "none":
+        w("## 3. `pfam_realign=none` が Pfam 呼び出しに与える影響（文献値）")
         w()
-        w("| key | value |")
-        w("|---|---|")
-        for k, v in ann.filters.items():
-            w(f"| `{k}` | `{v}` |")
+        w("`pfam_realign=none` は、Pfam ドメインを seed ortholog 経由の転写")
+        w("(transfer) で付与し、クエリ配列に対する再アラインメントを行わない。")
+        w("転写モードでの Pfam 呼び出しについて、de novo を正解としたときの")
+        w(f"報告値は **F1 = {PFAM_F1_DENOVO}**、realign を行った場合は")
+        w(f"**F1 = {PFAM_F1_REALIGN}** である（{PFAM_CITATION}）。")
         w()
-    w("> ウェブサーバのジョブページ表示と、この `##` 行に記録された実行コマンドは")
-    w("> 一致しないことが確認されている。ここに書いてあるのは **実際に走った設定** の方。")
+        w("**この 2 値をそのまま本データに当てはめることはできない。**")
+        w("当該ベンチマークは Progenomes（原核生物）ベースであり、eggNOG における")
+        w("代表性が低い緑藻では、誤差はこれより悪い方向に振れうる。")
+        w("本データでの実測は `docs/PFAM_CONCORDANCE.md`（InterProScan 6 を正解と")
+        w("したときの一致度）を参照。")
+    else:
+        w("## 3. Pfam 呼び出しモード")
+        w()
+        w(f"`pfam_realign` の実測値は `{pfam_realign}` であり `none` ではないため、")
+        w("転写モード前提の文献値（F1 = 89.7% / 98.9%）は該当しない。")
     w()
-    w("## 3. 充填率（データ行 " + str(len(ann.rows)) + " 行に対して）")
-    w()
-    w("| 列 | 値の入った行 | 率 |")
-    w("|---|---|---|")
-    for c in carried:
-        n = ann.filled(c)
-        w(f"| `{c}` | {n} | {100 * n / len(ann.rows):.2f} % |")
-    w()
-    w(f"## 4. 遺伝子表への結合（{total} 遺伝子に対して）")
+
+    # -- 4. coverage -------------------------------------------------------- #
+    w(f"## 4. 各列のカバレッジ（全 {total} 遺伝子に対して）")
     w()
     w(f"- eggNOG 行が付いた遺伝子: **{n_joined} / {total} "
       f"({100 * n_joined / total:.2f} %)**")
-    w(f"- eggNOG 行が無い遺伝子: {total - n_joined}")
+    w(f"- eggNOG 行が無い遺伝子: {total - n_joined} / {total} "
+      f"({100 * (total - n_joined) / total:.2f} %)")
     w()
-    w("| 列 | 値の入った遺伝子 | 全遺伝子に対する率 |")
+    w("| 列（出力表での名前） | 件数 / " + str(total) + " | % |")
     w("|---|---|---|")
+    w(f"| （eggNOG 行そのもの） | {n_joined} / {total} | {100 * n_joined / total:.2f} |")
     for c in carried:
         n = per_column[c]
-        w(f"| `eggnog_{c}` | {n} | {100 * n / total:.2f} % |")
+        w(f"| `eggnog_{c}` | {n} / {total} | {100 * n / total:.2f} |")
     w()
-    w("結合は左外部結合。eggNOG 行が無い遺伝子の追加列は**空欄**で、推定値は入れていない。")
-    w("既存の `product` と `symbol` は一切書き換えていない。")
+    w("空欄は「eggNOG が値を返さなかった」であり、推定値は一切入れていない。")
+    w(f"既存の `product` / `symbol` および `{rel(args.gene_table)}` 本体は書き換えていない。")
     w()
+
+    # -- 5. reference-only files -------------------------------------------- #
     if references:
         w("## 5. 参照のみ（統合していないファイル）")
         w()
@@ -344,11 +434,16 @@ def write_report(args, ann, references, rows, n_joined, per_column, carried,
             pf = args.pfam_column
             if pf in ref.columns:
                 w(f"- `{pf}` が埋まった行: **{ref.filled(pf)}**")
-            w(f"- 記録された command: `{ref.command}`")
-            same = (ref.command == ann.command)
-            w(f"- 取り込み対象ファイルの command と{'一致' if same else '相違'}")
+            w(f"- `pfam_realign`: `{ref.filters.get('pfam_realign')}`")
+            same = ref.command == ann.command
+            w(f"- 記録された command は取り込み対象と"
+              f"**{'完全一致' if same else '相違'}**")
             w()
-    L.close()
+        w("de novo を狙って再投入したジョブでも `pfam_realign=none` が記録され、")
+        w("PFAM 付与は 0 件だった。ジョブページ表示と実行内容の不一致を示す直接証拠。")
+        w()
+
+    fh.close()
     print(f"wrote {out}")
 
 
