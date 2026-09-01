@@ -1,112 +1,135 @@
-# step 0 — InterPro Matches API による UniParc 事前計算結果の取得
+# step 0 — InterPro Matches API lookup (UTEX 25 projected proteome)
 
-ApU25（*Auxenochlorella protothecoides* UTEX 25）投影プロテオームに対し、
-InterPro Matches API から InterProScan 6 の事前計算結果を引き当て、
-未ヒット分だけをローカル InterProScan 6 に回すための前段。
+実行日: 2026-09-01 / 入力: `annotation/UTEX25_proteins.faa` (7,413 配列)
+スクリプト: `scripts/05_interpro_matches.py` (`probe` → `fetch` → `report`)
 
-## 状態: 未完了 — API へ到達できず
+すべて実測値。取得できなかった項目は「取得できなかった」と明記している。
 
-この実行環境の egress ポリシーが `ebi.ac.uk` 全体を遮断しているため、
-API 問い合わせを 1 回も実行できていない。
-**オフラインで確定できる部分（MD5 の算出まで）のみを本 PR に含める。**
-ヒット率を含む API 依存の数値は、推測値を書かず未取得として明示する。
+## 1. エンドポイント（未確定事項 (a) の確定）
 
-### 遮断の実測記録
+`https://www.ebi.ac.uk/interpro/matches/api/docs` は **HTTP 404**。
+`https://www.ebi.ac.uk/interpro/matches/api/openapi.json` が **HTTP 200** で、
+そこに実際のパスが書かれていた（`step0_out/openapi.json` に保存）。
 
-egress プロキシは TLS の CONNECT 段階で 403 を返すため、パスに関係なく全遮断となる。
-
-| URL | 結果 |
+| 項目 | 実測 |
 |---|---|
-| `https://www.ebi.ac.uk/interpro/matches/api/openapi.json` | `000`（CONNECT に 403 / `connect_rejected`） |
-| `https://www.ebi.ac.uk/interpro/matches/api/docs` | `000`（同上） |
-| `https://www.ebi.ac.uk/` | `000`（同上） |
-| `https://ebi.ac.uk/` | `000`（同上） |
-| `https://ftp.ebi.ac.uk/pub/databases/interpro/releases/latest/` | `000`（同上） |
-| `https://github.com/`（対照） | `400`（到達可・遮断されていない） |
+| **200 を返した URL** | `https://www.ebi.ac.uk/interpro/matches/api/matches` (POST) |
+| OpenAPI `servers[0].url` | `/interpro/matches/api` |
+| 定義されているパス | `POST /matches`（最大100件）, `GET /matches/{md5}`（1件） |
+| API バージョン (`info.version`) | `0.6.0` — "InterPro Matches API" |
+| リクエスト形式 | `Content-Type: application/json`, body `{"md5": [...]}`（大文字16進、1〜100件） |
 
-プロキシの `recentRelayFailures` に記録された理由:
-`gateway answered 403 to CONNECT (policy denial or upstream failure)` — `www.ebi.ac.uk:443`。
+`probe` が候補の第1 URL で 200 を得たため、`https://www.ebi.ac.uk/interpro/matches/api/`
+（末尾スラッシュ）は試行していない。
 
-セルフホスト（README の Docker/Singularity 手順）も、データ書庫の配布元が
-同じ `ftp.ebi.ac.uk` であるため、この環境では代替にならない。
+## 2. レスポンス JSON の実際のキー名（未確定事項 (b) の確定）
 
-## 実測できた項目
+1件だけ POST した生レスポンスは `step0_out/probe_response.json` に保存済み。
+実際に返ってきたキー名は以下（OpenAPI の `BatchResponse` / `BatchResult` / `Match`
+/ `Signature` / `Entry` / `Location` と一致することも確認）。
+
+```
+{"results": [ {"md5", "found", "matches"} ]}
+```
+
+| 階層 | 実際のキー名 |
+|---|---|
+| トップレベル | `results`（配列。これ1つのみ） |
+| `results[]` | `md5`, `found`, `matches` |
+| `matches[]` | `signature`, `model-ac`, `source`, `locations`, `score`, `evalue`（PANTHER のみ `ancestralNode`, `graphscan` が付く） |
+| `signature` | `accession`, `name`, `description`, `type`, `signatureLibraryRelease`, `entry` |
+| `signatureLibraryRelease` | `library`, `version` |
+| `signature.entry` | `accession`(=IPR), `name`, `description`, `type`, `parent` — 未対応シグネチャでは `null` |
+| `locations[]` | `start`, `end`, `location-fragments`, `hmmStart`, `hmmEnd`, `hmmLength`, `hmmBounds`, `envelopeStart`, `envelopeEnd`, `evalue`, `score` |
+
+**未ヒットの扱い（実測）**: 送った MD5 は必ず全件返る。UniParc に無い MD5 は
+`"found": false` かつ `"matches": []` で返る（32桁のゼロを混ぜて実測確認）。
+したがって `found` が UniParc 収録の判定に使える唯一の権威ある値であり、
+集計はこれを使っている（`matches` の空/非空ではない）。
+
+**GO について**: このレスポンスには GO 項目が一切含まれない。
+OpenAPI スキーマに GO 用のフィールドが定義されておらず（`goXRefs` 等は存在しない）、
+全75バッチの生レスポンス 3.1 MB を走査しても `GO:` で始まる文字列は **0 件**だった。
+よって下の GO 数は「API が返さないので全て 0」であり、
+「この遺伝子群に GO が無い」という意味ではない。GO は別途 InterPro entry → GO の
+対応表（`interpro2go`）を引く必要がある。
+
+## 3. 取得
 
 | 項目 | 値 |
 |---|---|
-| 使用 FASTA | `annotation/UTEX25_proteins.faa` |
-| 配列数 | **7,413** |
-| ユニーク MD5 数 | **7,413** |
-| 完全重複配列（配列数 − ユニーク MD5 数） | **0** |
-| 重複する protein_id | 0 |
-| 内部終止コドン `*` を含む配列 | **235** |
-| 内部終止を含まない配列 | 7,178 |
-| 配列長（正規化後） | 最短 19 aa / 最長 17,905 aa |
-| 必要リクエスト数（100 件/回） | **75** |
+| ユニーク MD5 | 7,413（完全重複配列 0 のため配列数と同数） |
+| リクエスト数 | 75（100件/回） |
+| レート | 2.5 req/s（≦3 req/s） |
+| 429 / 5xx による再試行 | 0 回 |
+| 失敗バッチ | **0** |
+| 生レスポンス | `step0_out/matches_raw.json.gz`（gzip, 3.1 MB） |
 
-完全重複が 0 件のため、MD5 集約によるリクエスト削減は起きない（事前の見積りどおり）。
+## 4. ヒット率
 
-MD5 は仕様どおり「大文字化し末尾の `*` を除去した配列」に対して計算し、16 進大文字で保持している。
-本 FASTA には末尾 `*` を持つ配列は 1 件も無く、`*` は計 816 文字すべてが配列内部に出現する。
+| 母数 | ヒット | 率 |
+|---|---|---|
+| 全 7,413 配列 | 3,899 | **52.60 %** |
+| 内部終止 235 を除く 7,178 配列 | 3,899 | **54.32 %** |
 
-## 未取得の項目（API 到達後に確定するもの）
+内部終止 `*` を含む 235 配列のヒットは **0 件**（実測）。
+そのため 2 つの母数でヒット数は同じ 3,899 になる。
+未ヒットは 3,514 配列で、`step0_out/unmatched.faa` に出力した（= `in_uniparc` が `no` の行数と一致）。
 
-| 項目 | 状態 |
+## 5. ヒットした 3,899 配列の統計
+
+| 指標 | 最小 | Q1 | 中央値 | Q3 | 最大 | 平均 |
+|---|---|---|---|---|---|---|
+| InterPro エントリ数 (IPR) | 0 | 1 | **3** | 4 | 20 | 3.05 |
+| Pfam 数 (PF) | 0 | 1 | **1** | 1 | 8 | 1.10 |
+| GO 数 | 0 | 0 | **0** | 0 | 0 | 0.00 |
+| シグネチャマッチ総数 | 0 | 5 | 7 | 11 | 95 | 9.08 |
+
+四分位は `statistics.quantiles(n=4, method="inclusive")`、母集団はヒットした
+3,899 配列すべて（0 件のものを含む）。
+
+- InterPro エントリが 1 つ以上付いたもの: 3,294 / 3,899 (84.48 %)
+- Pfam が 1 つ以上付いたもの: 3,077 / 3,899 (78.92 %)
+- UniParc にはあるがマッチ 0 件: 80 配列
+
+### シグネチャライブラリ別のマッチ数（ヒット配列の合計）
+
+| ライブラリ | version | マッチ数 |
+|---|---|---|
+| Phobius | 1.01 | 4,914 |
+| PIRSR | 2025_05 | 4,668 |
+| Pfam | 38.2 | 4,279 |
+| CATH-Gene3D | 4.3.0 | 4,151 |
+| SUPERFAMILY | 1.75 | 3,232 |
+| PANTHER | 19.0 | 3,133 |
+| MobiDB-lite | 4.0 | 1,997 |
+| PROSITE profiles | 2026_01 | 1,553 |
+| CDD | 3.21 | 1,505 |
+| CATH-FunFam | 4.3.0 | 1,360 |
+| SMART | 9.0 | 1,261 |
+| PROSITE patterns | 2026_01 | 885 |
+| NCBIFAM | 19.0 | 793 |
+| PRINTS | 42.0 | 544 |
+| COILS | 2.2.1 | 484 |
+| HAMAP | 2026_01 | 297 |
+| PIRSF | 3.10 | 254 |
+| SFLD | 4 | 95 |
+
+## 6. 成果物
+
+| ファイル | 内容 |
 |---|---|
-| 実際に 200 を返した URL | **未取得** — 候補 2 件を試行できていない |
-| レスポンス JSON の実際のキー名 | **未取得** — 生レスポンスを 1 件も観測していない |
-| UniParc ヒット数・百分率（全 7,413 に対する率） | **未取得** |
-| UniParc ヒット数・百分率（内部終止を除く 7,178 に対する率） | **未取得** |
-| ヒット配列あたり InterPro エントリ数の中央値・四分位 | **未取得** |
-| ヒット配列あたり Pfam 数の中央値・四分位 | **未取得** |
-| ヒット配列あたり GO 数の中央値・四分位 | **未取得** |
-| 未ヒット件数 | **未取得** |
+| `lookup_status.tsv` | 7,413 行 + ヘッダ = 7,414 行。`protein_id` / `md5` / `length` / `has_internal_stop` / `in_uniparc` / `n_interpro` / `n_pfam` / `n_go`。未ヒット行の計数3列は空欄 |
+| `unmatched.faa` | 3,514 配列（`in_uniparc` = `no` の行数と一致） |
+| `matches_raw.json.gz` | 75 バッチの生レスポンス（gzip） |
+| `probe_response.json` | 1 件だけ POST した生レスポンス（スキーマ確定の根拠） |
+| `openapi.json` | 取得した OpenAPI 定義（エンドポイント確定の根拠） |
+| `SUMMARY.md` | 本ファイル |
 
-内部終止を含む 235 配列が UniParc に存在せず必ずミスになる、というのは
-依頼者から与えられた前提であり、本作業で検証したものではない。
-実測したのは「内部終止を含む配列が 235 件ある」ことのみ。
+`md5_table.tsv` は `lookup_status.tsv` に `length` / `has_internal_stop` 列として
+統合したため削除した。
 
-## 生成物
+## 7. 次段階
 
-| ファイル | 状態 |
-|---|---|
-| `md5_table.tsv` | **生成済み** — 7,413 行 + ヘッダ。`protein_id` / `md5` / `length` / `has_internal_stop` |
-| `lookup_status.tsv` | 未生成（`in_uniparc` が API 依存のため） |
-| `unmatched.faa` | 未生成（未ヒット集合が未確定のため） |
-| `matches_raw.json.gz` | 未生成（生レスポンスが無いため） |
-
-`lookup_status.tsv` を `in_uniparc` 未確定のまま置くと実測値と誤認されうるため、
-オフラインで確定する 2 列のみを別名 `md5_table.tsv` として出力してある。
-
-## API 到達可能な環境での実行手順
-
-`scripts/05_interpro_matches.py` に全工程を実装済み。`ebi.ac.uk` に出られる環境で:
-
-```sh
-# 1. エンドポイント特定 + 生レスポンス 1 件の観測（未確定事項 (a) と (b)）
-python3 scripts/05_interpro_matches.py probe
-
-# 2. 全 75 リクエスト（2.5 req/s、429/5xx は 2/4/8/16 秒で最大 4 回再試行）
-python3 scripts/05_interpro_matches.py fetch --endpoint <probe が 200 を返した URL>
-
-# 3. 集計（lookup_status.tsv / unmatched.faa と SUMMARY 用の数値）
-python3 scripts/05_interpro_matches.py report
-```
-
-`probe` は候補 2 件を順に POST し、どちらも 200 でなければ `/openapi.json` と `/docs` を
-GET して保存する。200 を返した URL と生レスポンスは `probe_response.json` に残るので、
-上表の「実際に 200 を返した URL」「レスポンス JSON の実際のキー名」はそこから確定できる。
-
-### レスポンススキーマの扱い
-
-スキーマ未観測のまま集計を書くと当て推量になるため、`resolve_by_md5()` は
-想定しうる数通りの形（`{"results":[…]}` / `{"MD5":{…}}` / 素の配列 など）を受理し、
-**どれにも当てはまらなければ観測されたキー名を添えて例外送出して停止する**。
-黙って誤集計しない。合成データでの動作は確認済み。
-
-InterPro / Pfam / GO の計数はペイロード内の全文字列を走査してアクセッション表記
-（`IPR\d{6}` / `PF\d{5}` / `GO:\d{7}`）の異なり数を数える方式で、入れ子構造に依存しない。
-
-なお `probe` 実行後に確認が要る点が 1 つある: UniParc に存在するがマッチ 0 件の配列に対し
-API がエントリを返すのか、そもそも省くのか。現状は「エントリが返れば UniParc にあり」と
-解釈している（マッチ 0 件でも `in_uniparc=yes`）。`probe_response.json` で要確認。
+未ヒット 3,514 配列（内部終止 235 を含む）はローカル InterProScan 6 にかける必要がある。
+GO は API から取れないため、`interpro2go` を別途引くこと。

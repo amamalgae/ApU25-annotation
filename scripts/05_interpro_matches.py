@@ -8,6 +8,16 @@ a local InterProScan 6 run.
 MD5 convention (from the API README): hash the sequence uppercased and with the
 trailing ``*`` removed, then send the digest as uppercase hex.
 
+Endpoint and schema, confirmed live against the service on 2026-09-01
+(``/interpro/matches/api/openapi.json``, InterPro Matches API 0.6.0):
+
+  POST https://www.ebi.ac.uk/interpro/matches/api/matches
+  request  {"md5": [<up to 100 uppercase hex digests>]}
+  response {"results": [{"md5": str, "found": bool, "matches": [Match, ...]}]}
+
+Every submitted MD5 comes back, absent ones as ``"found": false`` with an empty
+``matches`` list, so ``found`` is the authoritative UniParc membership flag.
+
 Subcommands, in the order they are meant to be run:
 
   md5     offline; writes md5_table.tsv.  No network.
@@ -132,10 +142,10 @@ def post_batch(session, url, md5s, *, timeout=120):
 def resolve_by_md5(body):
     """Map MD5 -> payload for one response body.
 
-    The response schema is item (b) of the brief and is NOT documented in the
-    API README, so this accepts the handful of shapes a FastAPI service of this
-    kind plausibly returns and raises loudly on anything else rather than
-    guessing.  Confirm it against probe_response.json before trusting a run.
+    The live schema is ``{"results": [{"md5", "found", "matches"}]}`` (see the
+    module docstring), which the ``"results"`` branch below handles.  The other
+    branches are kept as tolerance for a schema change and anything unrecognised
+    raises loudly rather than being guessed at.
     """
     def from_list(items):
         out = {}
@@ -210,18 +220,16 @@ ECHO_KEYS = {"md5", "MD5", "sequence_md5", "id"}
 def is_hit(payload) -> bool:
     """Whether an entry returned for an MD5 means "this sequence is in UniParc".
 
-    The API is keyed on UniParc membership, so the presence of an entry is
-    taken as the hit signal and a sequence that is in UniParc but has no
-    signature matches still counts as a hit (in_uniparc=yes, 0 InterPro
-    entries).  Explicitly empty payloads, and entries that only echo the
-    submitted MD5 back with no result fields, count as misses.
-
-    UNCONFIRMED: whether the API omits absent MD5 entirely or returns an empty
-    entry for them is item (b) of the brief and needs checking against
-    step0_out/probe_response.json before a run is trusted.
+    The API answers every submitted MD5 with an explicit ``found`` boolean
+    (confirmed live: a digest of 32 zeroes comes back as ``found: false`` with
+    ``matches: []``), so that flag decides.  A sequence that is in UniParc but
+    carries no signature matches is still a hit: in_uniparc=yes with 0 InterPro
+    entries.  The fallbacks below only apply if a future schema drops ``found``.
     """
     if payload is None:
         return False
+    if isinstance(payload, dict) and isinstance(payload.get("found"), bool):
+        return payload["found"]
     if isinstance(payload, (list, dict)) and len(payload) == 0:
         return False
     if isinstance(payload, dict) and not (set(payload) - ECHO_KEYS):
@@ -369,21 +377,28 @@ def cmd_report(args):
     lookup = OUT_DIR / "lookup_status.tsv"
     unmatched = OUT_DIR / "unmatched.faa"
 
+    # lookup_status.tsv subsumes md5_table.tsv: the two offline columns
+    # (length, has_internal_stop) are carried here so there is one table.
     with open(lookup, "w") as tsv, open(unmatched, "w") as faa:
-        tsv.write("protein_id\tmd5\tin_uniparc\n")
+        tsv.write("protein_id\tmd5\tlength\thas_internal_stop\tin_uniparc"
+                  "\tn_interpro\tn_pfam\tn_go\n")
         for pid, header, core, digest, stop in records:
             hit = is_hit(by_md5.get(digest))
-            tsv.write(f"{pid}\t{digest}\t{'yes' if hit else 'no'}\n")
             if hit:
                 n_hit += 1
                 if not stop:
                     n_hit_clean += 1
-                for key, value in count_accessions(by_md5[digest]).items():
+                acc = count_accessions(by_md5[digest])
+                for key, value in acc.items():
                     counts[key].append(value)
+                cols = f"{acc['interpro']}\t{acc['pfam']}\t{acc['go']}"
             else:
+                cols = "\t\t"  # not looked up successfully / not in UniParc
                 faa.write(f">{header}\n")
                 for j in range(0, len(core), 60):
                     faa.write(core[j:j + 60] + "\n")
+            tsv.write(f"{pid}\t{digest}\t{len(core)}\t{'yes' if stop else 'no'}"
+                      f"\t{'yes' if hit else 'no'}\t{cols}\n")
 
     total = len(records)
     n_stop = sum(1 for r in records if r[4])
