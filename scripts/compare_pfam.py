@@ -10,8 +10,14 @@ What this measures is the AGREEMENT between eggNOG-mapper's transferred Pfam
 calls and InterProScan 6's calls.  It is not the transfer-vs-de-novo comparison
 that eggNOG's own benchmark reports: the two sides here differ in Pfam release,
 in clan-conflict resolution, and in pipeline, and those differences are folded
-into the disagreement.  The report says so in its first section and reports a
-release-restricted variant alongside the unrestricted one.
+into the disagreement.  The report says so in its first section.
+
+It reports the comparison two ways: over every eggNOG call (keyed on the Pfam
+name) and over only those eggNOG calls whose name resolves to an accession in
+the Pfam release table (keyed on the accession).  The second is NOT a
+release-matched comparison -- eggNOG's own Pfam version is not recorded anywhere
+in its output, so no common release can be defined.  It only removes calls from
+the eggNOG side.
 
 Comparison unit: the PFxxxxx accession, version suffix stripped, compared as a
 SET per protein (a protein carries several domains).
@@ -327,13 +333,14 @@ def main():
     shared = sorted(in_uniparc & set(eg_acc))
 
     # Two views of the same comparison:
-    #   restricted -- keyed on PF accessions that resolve in the Pfam release
-    #                 named by Pfam.version, i.e. the release InterProScan used
-    #   unrestricted -- keyed on the Pfam name, so every eggNOG call is kept
+    #   resolved -- keyed on PF accession, so eggNOG calls whose name is not in
+    #               the Pfam release table drop out of the eggNOG side only
+    #   all_calls -- keyed on the Pfam name, so every eggNOG call is kept
+    # `resolved` is NOT release-matched: it shrinks one side, nothing more.
     restricted = Concordance(shared, ip_acc, eg_acc)
     unrestricted = Concordance(shared, ip_name, eg_name)
 
-    # How much each side loses to the restriction (measured, not assumed).
+    # What each side loses when the unresolvable names drop out (measured).
     ip_called = {a for pid in shared for a in ip_acc[pid]}
     ip_dropped = ip_called - clans_accessions
     eg_dropped_calls = unrestricted.test_only - restricted.test_only
@@ -381,9 +388,10 @@ def main():
     w("**したがって Cantalapiedra 2021 の 89.7% と本値を直接比較することはできず、")
     w("本値は「一致率の下限」とみなすべきである。**")
     w()
-    w("§4–§6 では 2 つの版を並記している。**共通リリース限定版**は上記 1 の交絡を")
-    w("測れる範囲で落としたものだが、**2 と 3 は依然として残る**。")
-    w("限定版もまた transfer vs de novo の値ではない。")
+    w("§4–§6 では集計を 2 通り並記しているが、**どちらも上記 3 つの交絡を")
+    w("除去していない**。とくに 1（Pfam リリース差）については、eggNOG 側の")
+    w("Pfam 版が特定不能である以上、**両側の共通集合を定義すること自体ができない**。")
+    w("2 通りの違いは、eggNOG 側の呼び出しを一部除外するかどうかだけである（§4）。")
     w()
 
     # -- 1. key normalisation ------------------------------------------------ #
@@ -463,8 +471,11 @@ def main():
     if pfam_release and interpro_pfam_versions == [pfam_release]:
         w(f"対応表の Pfam 版 `{pfam_release}` は、InterProScan 6 が報告した Pfam 版 "
           f"`{interpro_pfam_versions[0]}` と**一致する**。")
-        w("よって以下の「共通リリース限定」は、"
-          f"「Pfam {pfam_release} の名前表で解決できる呼び出しに限定する」ことを意味する。")
+        w(f"ただし一致するのは InterPro 側と対応表の間だけである。"
+          "eggNOG 側の版は不明のままなので、**「両側に共通する Pfam 版」は"
+          "定義できていない**。§4 以降で行っているのは、"
+          f"Pfam {pfam_release} の名前表で解決できない eggNOG 側の呼び出しを"
+          "除外することだけで、バージョン差の除去ではない。")
     elif pfam_release:
         w(f"対応表の Pfam 版 `{pfam_release}` と InterProScan の Pfam 版 "
           f"{interpro_pfam_versions} は**一致しない**。")
@@ -494,11 +505,14 @@ def main():
     w()
     w("（タンパク質 × ドメインの組を 1 呼び出しと数える）")
     w()
-    w(f"- **全体版**: キーは Pfam 名。eggNOG の呼び出しを 1 つも落とさない。")
-    w(f"- **共通リリース限定版**: キーは PF アクセッション。"
-      f"Pfam {pfam_release or '(版不明)'} の名前表で解決できる呼び出しに限定。")
+    w("集計は 2 通り。**どちらもバージョン差を除去していない**（§0、§2.2）。")
     w()
-    w("| 区分 | 全体版 | 共通リリース限定版 |")
+    w("- **全呼び出し**: キーは Pfam 名。eggNOG の呼び出しを 1 つも落とさない。")
+    w(f"- **対応表で解決できた呼び出しのみ**: キーは PF アクセッション。"
+      f"Pfam {pfam_release or '(版不明)'} の名前表で解決できない eggNOG 側の"
+      "呼び出しを除外する。**除外されるのは eggNOG 側だけ**である。")
+    w()
+    w("| 区分 | 全呼び出し | 対応表で解決できた呼び出しのみ |")
     w("|---|---|---|")
     w(f"| 両方にある | {unrestricted.both} | {restricted.both} |")
     w(f"| InterPro のみ（eggNOG の取りこぼし） | {unrestricted.truth_only} | "
@@ -508,7 +522,7 @@ def main():
       f"{unrestricted.both + unrestricted.truth_only + unrestricted.test_only} | "
       f"{restricted.both + restricted.truth_only + restricted.test_only} |")
     w()
-    w("限定によって各側が失う呼び出し（実測）:")
+    w("除外によって各側が失う呼び出し（実測）:")
     w()
     w(f"- InterPro 側: **{len(ip_dropped)} 呼び出し**。"
       f"比較対象で呼ばれた {len(ip_called)} 種類の PF アクセッションは"
@@ -516,11 +530,15 @@ def main():
     w(f"- eggNOG 側: **{eg_dropped_calls} 呼び出し**"
       f"（§1 の変換不能な {n_unmapped_names} 種類に由来）。")
     w()
+    w("**この操作は「両側を同じ Pfam 版に揃える」ものではない。**")
+    w("片側（eggNOG）の分母を減らしているだけであり、"
+      "InterPro 側は 1 呼び出しも減っていない。")
+    w()
 
     # -- 5. P/R/F1 ------------------------------------------------------------ #
     w("## 5. InterProScan 6 を正解としたときの eggNOG の性能")
     w()
-    w("| 指標 | 全体版 | 共通リリース限定版 |")
+    w("| 指標 | 全呼び出し | 対応表で解決できた呼び出しのみ |")
     w("|---|---|---|")
     w(f"| precision | {pct(unrestricted.precision)} | **{pct(restricted.precision)}** |")
     w(f"| recall | {pct(unrestricted.recall)} | **{pct(restricted.recall)}** |")
@@ -531,16 +549,20 @@ def main():
     w()
     if (restricted.both == unrestricted.both
             and restricted.truth_only == unrestricted.truth_only):
-        w("「両方にある」と「InterPro のみ」は 2 つの版で**同数**である。")
-        w("すなわち §1 で変換できなかった eggNOG 名は 1 つも InterPro 側と一致しておらず、")
-        w("リリース差の除去は recall を動かさない。差は precision "
-          f"{pct(unrestricted.precision)} → {pct(restricted.precision)} のみに現れる。")
+        w("「両方にある」と「InterPro のみ」は 2 通りで**同数**である。")
+        w("すなわち §1 で変換できなかった eggNOG 名は 1 つも InterPro 側と一致していない。")
+        w(f"よって recall は {pct(unrestricted.recall)} のまま動かず、")
+        w(f"**F1 が {pct(unrestricted.f1)} → {pct(restricted.f1)} に上がったのは、")
+        w(f"precision の分母（eggNOG 側の呼び出し総数）が "
+          f"{unrestricted.both + unrestricted.test_only} → "
+          f"{restricted.both + restricted.test_only} に減ったためである**。")
+        w("バージョン差が除かれた結果ではない。")
         w()
 
     # -- 6. protein level ----------------------------------------------------- #
     w("## 6. タンパク質単位の一致率")
     w()
-    w("| 指標 | 全体版 | 共通リリース限定版 |")
+    w("| 指標 | 全呼び出し | 対応表で解決できた呼び出しのみ |")
     w("|---|---|---|")
     w(f"| ドメイン集合が完全一致 | {unrestricted.exact} / {unrestricted.n_proteins}"
       f" ({pct(unrestricted.exact_rate)}) | {restricted.exact} / "
@@ -556,7 +578,7 @@ def main():
     w()
 
     # -- 7. QC strata ---------------------------------------------------------- #
-    w("## 7. QC フラグ別の層別集計（共通リリース限定版）")
+    w("## 7. QC フラグ別の層別集計（対応表で解決できた呼び出しのみ）")
     w()
     if qc is None:
         w(f"`{args.gene_table.relative_to(ROOT)}` が無いため層別できない。")
@@ -621,7 +643,7 @@ def main():
         w(f"（異なるアクセッション {len(counter)} 種類、延べ {sum(counter.values())} 件）")
         w()
 
-    w(f"## 8. 上位 {args.top} ドメイン（共通リリース限定版）")
+    w(f"## 8. 上位 {args.top} ドメイン（対応表で解決できた呼び出しのみ）")
     w()
     top_table(restricted.truth_only_counts,
               f"8.1 eggNOG が取りこぼした（InterPro のみ）上位 {args.top}")
@@ -631,10 +653,13 @@ def main():
     # -- 9. vs literature ------------------------------------------------------ #
     w("## 9. 文献値 F1 = 89.7% との比較")
     w()
-    w(f"本データでの実測は、共通リリース限定版で F1 = **{pct(restricted.f1)}**"
+    w(f"本データでの実測は、対応表で解決できた呼び出しのみで F1 = **{pct(restricted.f1)}**"
       f"（precision {pct(restricted.precision)} / recall {pct(restricted.recall)}、"
       f"対象 {len(shared)} タンパク質）、"
-      f"全体版で F1 = **{pct(unrestricted.f1)}** である。")
+      f"全呼び出しで F1 = **{pct(unrestricted.f1)}** である。")
+    w(f"§4 のとおりこの 2 値の差はバージョン差の除去によるものではないので、"
+      f"**{pct(restricted.f1)} も一致率の下限**であり、"
+      "以下の理由により文献値との直接比較はできない。")
     w("Cantalapiedra et al. (2021) *Mol Biol Evol* 38(12):5825 "
       "(DOI: 10.1093/molbev/msab293) が転写モードの Pfam 呼び出しについて報告した "
       "F1 = 89.7%（realign 時 98.9%）とは、§0 に述べたとおり比較対象が異なるため、"
