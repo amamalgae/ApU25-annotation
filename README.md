@@ -88,15 +88,29 @@ InterProScan 6 と eggNOG の両方に結果がある 3,580 タンパク質に�
 PF アクセッション集合を比較。InterProScan を正解として F1 = 83.87%、
 タンパク質単位の完全一致 74.64%。詳細は `docs/PFAM_CONCORDANCE.md`。
 
+### GO の補完と投影品質のクロス集計
+
+```bash
+curl -fSL -o raw/interpro2go \
+  "https://ftp.ebi.ac.uk/pub/databases/interpro/current_release/interpro2go"
+python3 scripts/06_interpro2go.py    # interpro_gos 列を lookup_status.tsv に追加
+python3 scripts/07_projection_qc.py  # identity / QC × in_uniparc
+```
+
+Matches API は GO を返さないので `interpro2go` で補完（2,417/7,413 = 32.60%）。
+eggNOG の GO 列とは別列で併存させている（`step0_out/SUMMARY.md` §8）。
+投影品質との対応は `docs/PROJECTION_QC.md`。
+
 ## リポジトリ構成
 
 | パス | 内容 |
 |---|---|
 | `annotation/` | 生成物（GenBank 12染色体・GFF3・faa・fna・TSV） |
 | `raw/` | 外部から取得した入力（eggNOG-mapper 出力・Pfam 対応表・interpro2go） |
-| `scripts/` | 再現用パイプライン 4本 + 機能アノテーション 3本 |
+| `scripts/` | 再現用パイプライン 4本 + 機能アノテーション 5本 |
 | `step0_out/` | InterPro Matches API の結果 |
 | `docs/ANNOTATION.md` | 生成物の詳細・統計・限界 |
 | `docs/EGGNOG_REPORT.md` | eggNOG 取り込みの実行条件とカバレッジ |
 | `docs/PFAM_CONCORDANCE.md` | InterProScan 6 と eggNOG の Pfam 一致度 |
+| `docs/PROJECTION_QC.md` | identity / QC フラグと UniParc 収録のクロス集計 |
 | `docs/PUSH.md` | GitHub 運用メモ |
