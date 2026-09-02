@@ -115,7 +115,7 @@ nextflow run ./interproscan6 -profile docker -c ccr.config ...
 `scripts/09_sample_unmatched.py --mask-internal-stop X` で `X` に置換した。
 残基数が変わらないので所要時間の外挿や座標が壊れない。
 どう扱うかはデータの解釈に関わる判断なので、採用理由は
-`docs/IPS6_FEASIBILITY.md` §5.1 に記載してある。
+`docs/IPS6_FEASIBILITY.md` §5.2 に記載してある。
 
 ## 6. ディスク
 

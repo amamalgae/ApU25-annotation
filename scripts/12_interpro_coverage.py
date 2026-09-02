@@ -190,7 +190,7 @@ def main():
     w("## 5. 内部終止コドンの有無別")
     w()
     w("`has_internal_stop = yes` の 235 配列は `*` を `X` に置換して投入した"
-      "（`docs/IPS6_FEASIBILITY.md` §5.1）。")
+      "（`docs/IPS6_FEASIBILITY.md` §5.2）。")
     w()
     w("| has_internal_stop | 配列数 | InterPro ≥1（共通7） | 率 | Pfam ≥1 | 率 |")
     w("|---|---|---|---|---|---|")

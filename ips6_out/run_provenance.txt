@@ -1,0 +1,7 @@
+command: nextflow run <interproscan6 6.0.1 local clone> -profile docker -c ccr.config \
+  --input ips6_input.faa --datadir data --interpro 109.0 \
+  --applications pfam,ncbifam,prositepatterns,prositeprofiles,smart,cdd,superfamily \
+  --cpus 4 --outprefix utex25_unmatched
+started : 2026-09-02T00:29:29Z
+result  : EXIT=0 ELAPSED_S=4320
+[SUCCESS] completed=45 failed=0 cached=0

@@ -1,8 +1,8 @@
 # InterProScan 6 ローカル実行の可能性判定
 
-**本番実行はしていない。** 未ヒット 3,514 配列に対する実行は行っていない。
 本書はこの環境（ディスク 30 GB / 4 vCPU / 16 GB RAM）で実行できるかの判定と、
-そのための実測値の記録である。
+そのための実測値の記録である。§0〜§7 は本番実行の**前**に行った判定で、
+そのまま残してある。**本番実行は §9 に記録した（実施済み、exit 0）。**
 
 数値はすべて実測。計測していない項目は「未計測」と明記し、推定値は書いていない。
 
@@ -16,6 +16,7 @@
 | Matches API と同じ InterPro 版に固定できるか | **できる**。`--interpro 109.0`。18 ライブラリの版が完全一致（§4） |
 | `unmatched.faa` をそのまま投入できるか | **できない**。内部終止 `*` を含むため入力検証で落ちる（§5） |
 | 3,514 配列の所要時間（Pfam のみ） | 実測 3 点からの外挿で **約 18 分**（§6） |
+| 同（7 ライブラリ、本番実行の実測） | **4,320 s = 72 分**（§9） |
 
 そのまま実行に移せる状態ではあるが、事前に 2 つの前提（§2）と入力の前処理（§5）が要る。
 
@@ -421,11 +422,11 @@ exit 0
   先に `du -sh data` で確認する必要がある。
 - **`data/.ready`** — 本番実行の前にこのフラグを見れば、取得が完了しているか判定できる。
 
-本番実行はこの後、別途:
+本番実行はこの後、別途（実際に実行した内容は §9）:
 
 ```sh
-python3 scripts/09_sample_unmatched.py --n 3514 --seed 20260901 \
-    --mask-internal-stop X --out ips6_input.faa   # * の扱いは未決（§5.1）
+python3 scripts/09_sample_unmatched.py \
+    --all --mask-internal-stop X --out ips6_input.faa   # §5.2
 
 NXF_HOME=~/ips6/.nextflow ~/ips6/nextflow run ~/ips6/interproscan6 \
     -profile docker -c ~/ips6/ccr.config \
@@ -442,5 +443,52 @@ NXF_HOME=~/ips6/.nextflow ~/ips6/nextflow run ~/ips6/interproscan6 \
 | CATH-Gene3D のデータ量 | **未計測**（未着手） |
 | PANTHER + CATH-Gene3D で 30 GB に収まるか | **未計測** |
 | Pfam 以外を含めた場合の所要時間 | **未計測** |
-| 3,514 配列の本番実行 | **未実施**（§6.4 は外挿値） |
-| 内部終止 `*` の本番での扱い | **未決** |
+| 3,514 配列の本番実行 | **実施済み**（§9）。§6.4 の外挿は Pfam のみの値 |
+| 内部終止 `*` の本番での扱い | **決定済み**: `X` 置換（§5.2） |
+
+## 9. 本番実行の記録（実施済み）
+
+`docs/IPS6_FEASIBILITY.md` §0〜§8 の判定にもとづいて実行した。
+
+| 項目 | 実測 |
+|---|---|
+| 入力 | `step0_out/unmatched.faa` を `X` 置換したもの（3,514 配列 / 1,993,896 aa） |
+| applications | `pfam,ncbifam,prositepatterns,prositeprofiles,smart,cdd,superfamily` |
+| `--interpro` | `109.0`（`latest` は使っていない） |
+| `--cpus` | 4 |
+| Matches API ルックアップ | 有効のまま |
+| 開始 | 2026-09-02T00:29:29Z |
+| **所要** | **4,320 s = 72.0 分** |
+| 終了状態 | **exit 0** / `[SUCCESS] completed=45 failed=0 cached=0` |
+| 途中で落ちた地点 | なし |
+
+データは前段で取得済みだったため、この 72 分にダウンロード時間は含まれない
+（取得は §3.2 の 1119 s）。
+
+出力（`ips6_out/`）:
+
+| ファイル | 内容 |
+|---|---|
+| `utex25_unmatched.json.gz` | 生の JSON 出力（24 MB → gzip 3.2 MB） |
+| `utex25_unmatched.tsv.gz` | 同 TSV |
+| `input_prep.log` | 入力生成のログ（置換件数・残基数） |
+| `run_provenance.txt` | 実行コマンド・開始時刻・所要・終了状態 |
+
+出力の検証:
+
+- `results` は **3,514 件**、xref id も 3,514 件でユニーク（入力と一致、取りこぼしなし）
+- `interproscan-version: 6.0.1` / **`interpro-version: 109.0`**
+- ライブラリ版は Pfam 38.2 / NCBIFAM 19.0 / PROSITE patterns 2026_01 /
+  PROSITE profiles 2026_01 / SMART 9.0 / CDD 3.21 / SUPERFAMILY 1.75
+- マッチが 1 つ以上付いた配列: 2,687 / 3,514
+
+### 9.1 Pfam のみの外挿（§6.4）との関係
+
+§6.4 の 18.4 分は **Pfam のみ**の外挿値で、本番は 7 ライブラリなので直接は比較できない。
+両者を並べると次のとおり。7 ライブラリ構成での所要時間は事前に計測していなかったため、
+事前の予測値は存在しない。
+
+| 構成 | 所要 |
+|---|---|
+| Pfam のみ（§6.4、外挿） | 1,105 s = 18.4 分 |
+| 7 ライブラリ（本番、実測） | 4,320 s = 72.0 分 |
