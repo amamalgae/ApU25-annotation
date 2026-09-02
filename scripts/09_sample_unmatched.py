@@ -47,6 +47,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--faa", type=Path, default=DEFAULT_FAA)
     ap.add_argument("--n", type=int, default=100)
+    ap.add_argument("--all", action="store_true",
+                    help="take every record in file order instead of sampling")
     ap.add_argument("--seed", type=int, default=20260901)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--mask-internal-stop", metavar="RESIDUE", default=None,
@@ -54,10 +56,14 @@ def main():
     args = ap.parse_args()
 
     records = list(read_fasta(args.faa))
-    if args.n > len(records):
-        raise SystemExit(f"{args.faa} has {len(records)} records, fewer than "
-                         f"--n {args.n}")
-    picked = sorted(random.Random(args.seed).sample(range(len(records)), args.n))
+    if args.all:
+        picked = list(range(len(records)))
+    else:
+        if args.n > len(records):
+            raise SystemExit(f"{args.faa} has {len(records)} records, fewer "
+                             f"than --n {args.n}")
+        picked = sorted(random.Random(args.seed).sample(range(len(records)),
+                                                        args.n))
 
     total = 0
     masked_seqs = masked_residues = 0
@@ -76,8 +82,8 @@ def main():
 
     print(f"source     : {args.faa} ({len(records)} sequences, "
           f"{sum(len(s) for _, s in records)} aa)")
-    print(f"seed       : {args.seed}")
-    print(f"sampled    : {args.n} sequences, {total} aa -> {args.out}")
+    print(f"selection  : {'all records (no sampling)' if args.all else f'random, seed {args.seed}'}")
+    print(f"written    : {len(picked)} sequences, {total} aa -> {args.out}")
     if args.mask_internal_stop:
         print(f"masked     : {masked_seqs} sequence(s), {masked_residues} "
               f"'*' -> {args.mask_internal_stop!r}")
