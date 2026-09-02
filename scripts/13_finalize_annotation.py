@@ -22,13 +22,22 @@ product
        one     "<A> domain-containing protein"                 -> interpro_domain
        two     "<A> and <B> domain-containing protein"         -> interpro_domain_multi
        three+  the first two, same wording                     -> interpro_domain_multi
-  3    eggNOG Description: NOT APPLICABLE.  emapper 3.0.0-beta6 emits no
-       Description column at all, so this rule can never fire here.
-  3.5  entries that are only Homologous_superfamily / Repeat / Conserved_site
+  3    entries that are only Homologous_superfamily / Repeat / Conserved_site
        are not used: a shared fold is not a shared function    -> none
   4    otherwise "hypothetical protein"                        -> none
 
-Nothing is written unless every stop condition passes: no product over 120
+There is no eggNOG route into product.  emapper 3.0.0-beta6 writes 22 columns
+and none of them holds free text, so eggNOG cannot supply a product at all --
+the rule that once tried to has been removed rather than left as dead code.
+eggNOG still supplies symbols, from Preferred_name, which is a different thing.
+
+Symbols taken from Preferred_name are dropped again when the value is not a
+gene symbol: an NCBI LOC placeholder, another organism's locus id, a bare
+number, or a single character.  The dropped value is kept in symbol_rejected
+with its reason, because removing it from `symbol` and discarding it are
+different things.
+
+Nothing is written unless every stop condition passes: no product over 200
 characters, every gene matched by some rule, and not one of the existing
 symbols altered.
 
@@ -53,13 +62,52 @@ DEFAULT_EGGNOG = ROOT / "raw" / "eggnog_7413.emapper.annotations"
 DEFAULT_TREE = ROOT / "raw" / "ParentChildTreeFile.txt"
 
 HYPOTHETICAL = "hypothetical protein"
-MAX_PRODUCT = 120
+MAX_PRODUCT = 200
 STRUCTURAL_ONLY_TYPES = {"Homologous_superfamily", "Repeat", "Conserved_site",
                          "Active_site", "Binding_site", "PTM"}
 
 NEW_COLUMNS = ["symbol_source", "product_source", "dup_pair_id",
                "interpro_family_candidates", "interpro_family_unresolved",
-               "interpro_domain_all", "interpro_structural_only"]
+               "interpro_domain_all", "interpro_structural_only",
+               "symbol_rejected", "symbol_rejected_reason", "eggnog_data_row"]
+
+# Longest first within each pair, so "domain-containing" is stripped before
+# "domain" and "superfamily" before "family".
+DOMAIN_SUFFIXES = (" domain-containing", " domain", " superfamily", " family",
+                   " repeat")
+
+
+def domain_stem(text: str) -> str:
+    """Drop a trailing type word so " domain-containing protein" does not stutter."""
+    stem = text.strip()
+    for _ in range(2):
+        lowered = stem.lower()
+        for suffix in DOMAIN_SUFFIXES:
+            if lowered.endswith(suffix):
+                stem = stem[: -len(suffix)].rstrip(" ,")
+                break
+        else:
+            break
+    return stem or text.strip()
+
+
+def symbol_rejection(symbol: str):
+    """Why an eggNOG Preferred_name is not usable as a gene symbol, or None.
+
+    These are not rejected for matching a pattern but for not being gene
+    symbols: a placeholder, another organism's locus id, a bare number, or a
+    single letter.  Values that merely look machine-generated but are real
+    approved symbols (C1orf74, hapE_2, U2A') are kept.
+    """
+    if re.fullmatch(r"LOC\d+", symbol):
+        return "loc_placeholder"
+    if "\\" in symbol or ":" in symbol:
+        return "foreign_locus_id"
+    if re.fullmatch(r"\d+", symbol):
+        return "numeric_only"
+    if len(symbol) == 1:
+        return "single_char"
+    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -195,21 +243,23 @@ def decide_product(entries, starts, ancestors, field):
         order = sorted(domains, key=lambda a: (starts.get(a, 10 ** 9), a))
         domain_all = "; ".join(f"{a} {label(entries[a], field)}" for a in order)
         if len(order) == 1:
-            product = f"{label(entries[order[0]], field)} domain-containing protein"
+            product = (f"{domain_stem(label(entries[order[0]], field))} "
+                       "domain-containing protein")
             return product, "interpro_domain", "", domain_all, ""
-        product = (f"{label(entries[order[0]], field)} and "
-                   f"{label(entries[order[1]], field)} domain-containing protein")
+        product = (f"{domain_stem(label(entries[order[0]], field))} and "
+                   f"{domain_stem(label(entries[order[1]], field))} "
+                   "domain-containing protein")
         return product, "interpro_domain_multi", "", domain_all, ""
 
     if entries:
-        # rule 3.5 -- only fold/repeat/site level evidence
+        # rule 3 -- only fold/repeat/site level evidence
         if all(e["type"] in STRUCTURAL_ONLY_TYPES for e in entries.values()):
             return HYPOTHETICAL, "none", "", "", "TRUE"
         raise SystemExit(
             "a protein has InterPro entries that no rule covers: types "
             f"{sorted({e['type'] for e in entries.values()})}")
 
-    # rule 3 cannot fire (no Description column), so rule 4
+    # rule 4
     return HYPOTHETICAL, "none", "", "", ""
 
 
@@ -248,7 +298,7 @@ def main():
     ap.add_argument("--eggnog", type=Path, default=DEFAULT_EGGNOG)
     ap.add_argument("--tree", type=Path, default=DEFAULT_TREE)
     ap.add_argument("--entry-label", choices=("name", "description"),
-                    default="name",
+                    default="description",
                     help="which InterPro entry field the wording uses")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
@@ -276,21 +326,27 @@ def main():
     out_rows = []
     sym_src = collections.Counter()
     prod_src = collections.Counter()
+    rejected = collections.Counter()
     too_long = []
-    loc_style = 0
 
     for row in rows:
         locus = row[i_lt]
         # -- symbol ---------------------------------------------------------- #
         symbol = row[i_sym]
+        symbol_rejected = symbol_reason = ""
         if symbol:
+            # rule 1: a hand-curated value is never touched
             symbol_source = "utex250a"
         else:
             preferred = (eggnog.get(locus, {}).get("Preferred_name") or "").strip()
             if preferred and preferred != "-":
-                symbol, symbol_source = preferred, "eggnog"
-                if re.fullmatch(r"LOC\d+", preferred):
-                    loc_style += 1
+                reason = symbol_rejection(preferred)
+                if reason:
+                    symbol_rejected, symbol_reason = preferred, reason
+                    symbol, symbol_source = "", "none"
+                    rejected[reason] += 1
+                else:
+                    symbol, symbol_source = preferred, "eggnog"
             else:
                 symbol_source = "none"
         sym_src[symbol_source] += 1
@@ -308,7 +364,9 @@ def main():
         new[i_prod] = product
         new += [symbol_source, product_source, dup_ids.get(locus, ""),
                 candidates, "TRUE" if candidates else "",
-                domain_all, structural]
+                domain_all, structural,
+                symbol_rejected, symbol_reason,
+                "TRUE" if locus in eggnog else "FALSE"]
         out_rows.append(new)
 
     # -- stop conditions ----------------------------------------------------- #
@@ -338,7 +396,13 @@ def main():
     print(f"entry label field           : {args.entry_label}")
     print(f"symbol_source               : "
           + ", ".join(f"{k} {v}" for k, v in sorted(sym_src.items())))
-    print(f"  eggNOG values shaped LOCnnnn: {loc_style}")
+    if rejected:
+        print("  eggNOG Preferred_name rejected as not a gene symbol: "
+              f"{sum(rejected.values())}")
+        for reason, n in sorted(rejected.items()):
+            print(f"    {reason:<20} {n}")
+    print(f"eggnog_data_row TRUE        : "
+          f"{sum(1 for r in out_rows if r[-1] == 'TRUE')}")
     print(f"product_source              : "
           + ", ".join(f"{k} {v}" for k, v in sorted(prod_src.items())))
     kept = sum(1 for r in out_rows if r[i_prod] == HYPOTHETICAL)

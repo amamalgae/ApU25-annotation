@@ -133,7 +133,7 @@ A優位 1,976 / B優位 2,310 / 同値 3,052、n=7,338ペア）。対応ペア�
 | CDD | 3.21 |
 | SUPERFAMILY | 1.75 |
 | 階層 | InterPro 109.0 `ParentChildTreeFile.txt` |
-| eggNOG-mapper | 3.0.0-beta6（symbol の Preferred_name のみ使用） |
+| eggNOG-mapper | 3.0.0-beta6（**symbol の `Preferred_name` のみ使用**） |
 
 **PANTHER と CATH-Gene3D は未導入。** ローカル実行の帯域制約による
 （`docs/IPS6_FEASIBILITY.md` §3.3）。この2つが無いことが後述の200件の判断に直結する。
@@ -149,13 +149,14 @@ UniParc 収録済みの 3,899件は Matches API（18ライブラリ）、残り 
 
 1. 既存値（UTEX 250-A 由来）があれば**保持。上書き禁止**（原則1）→ `utex250a`
 2. 空欄の行に限り eggNOG の `Preferred_name` を入れる → `eggnog`
+   - ただし**遺伝子シンボルとして成立していない値は採らない**（後述）→ `none`
 3. なお空欄なら空欄のまま。推測で埋めない（原則2）→ `none`
 
 ## product の決定規則
 
 上から順に適用し、最初に該当したもので確定する。
 
-1. InterPro の `type=Family` があればその `name`。複数ある場合は
+1. InterPro の `type=Family` があればその記述名。複数ある場合は
    `ParentChildTreeFile` で最も下位（子）を採る（原則5）→ `interpro_family`
    - **1x**: Family 同士に祖先・子孫関係がなく順位が付かない場合は
      採用せず `hypothetical protein` のまま（後述）→ `none`
@@ -167,17 +168,23 @@ UniParc 収録済みの 3,899件は Matches API（18ライブラリ）、残り 
    - ユニーク2種: `<A> and <B> domain-containing protein` → `interpro_domain_multi`
    - ユニーク3種以上: N→C 順の先頭2つで同じ書式。3つ目以降は product に入れない
      → `interpro_domain_multi`
-3. InterPro が無く eggNOG の Description があればそれ。
-   **本データでは適用不能**（後述）。
-4. **3.5**: InterPro エントリが `Homologous_superfamily` / `Repeat` /
-   `Conserved_site` のみで構成される場合は product に使用せず
-   `hypothetical protein`（後述）→ `none`
-5. いずれも無ければ `hypothetical protein`（原則2）→ `none`
+3. InterPro エントリが `Homologous_superfamily` / `Repeat` / `Conserved_site`
+   のみで構成される場合は product に使用せず `hypothetical protein`（後述）→ `none`
+4. いずれも無ければ `hypothetical protein`（原則2）→ `none`
 
-`<name>` は InterPro エントリの **`name` フィールド**（短縮名）を使う。
-`description`（長い記述文）を使うと `... domain domain-containing protein` の
-重複が生じ、最長174文字となって GenBank `/product` として不適切なため採用しない
-（`name` 使用時の最長は90文字）。
+### 記述名（description）を使う
+
+`<A>` は InterPro エントリの **`description` フィールド（記述名）**を使う。
+短縮名（`name`）は使わない。`Znf_GATA` は "zinc finger" で検索してもヒットせず、
+用途1（検索して遺伝子にたどり着けること）を満たさないためである。
+product は人間が検索するための文字列であり、簡潔さより可読性を優先する。
+
+記述名の末尾が `domain-containing` / `domain` / `superfamily` / `family` /
+`repeat` で終わる場合は、その語を除去してから ` domain-containing protein` を
+付ける。`FKBP-type peptidyl-prolyl cis-trans isomerase domain` →
+`FKBP-type peptidyl-prolyl cis-trans isomerase domain-containing protein`。
+
+実測: product 文字列は**最長160文字・中央値40文字**、200文字超は**0件**。
 
 ## 規則で決めなかったもの、およびその理由
 
@@ -198,8 +205,7 @@ Family エントリが複数あり、かつ相互に祖先・子孫関係がな�
 `ips6_local` 6.35% と約3.3倍の開きがある。
 
 つまりここで特異的なほうを採ると、**遺伝子の性質ではなく、たまたま通った
-取得経路によって product の粒度が変わる**。原則5（特異的な名前を優先）と
-原則4（経路によらず粒度が揃っていること）が衝突し、原則4を優先した。
+取得経路によって product の粒度が変わる**。原則5と原則4が衝突し、原則4を優先した。
 
 IPR05xxxx を含まない36件も分離せず同一に扱った。**これはコストによる判断である。**
 (a) うち29件（80.6%）も `matches_api` 由来で偏りの方向が同じ、
@@ -211,7 +217,7 @@ IPR05xxxx を含まない36件も分離せず同一に扱った。**これはコ
 `/product="hypothetical protein"` とし、CDS の `/note` に
 `unresolved InterPro family assignment: IPRxxxxxx <name>; ...` を記録した。
 
-### 構造的手がかりのみの331件（4.47%）— 規則3.5
+### 構造的手がかりのみの331件（4.47%）— 規則3
 
 InterPro エントリはあるが `Homologous_superfamily` / `Repeat` /
 `Conserved_site` のみで、Family も Domain も無い。product には使わない。
@@ -229,17 +235,81 @@ InterPro エントリはあるが `Homologous_superfamily` / `Repeat` /
 `interpro_accessions` 列に従来どおり保持している。**product に使わないことと
 情報を捨てることは別である。** `interpro_structural_only = TRUE` で再抽出できる。
 
-### 規則3（eggNOG Description）は適用不能
+### eggNOG を product の情報源にする規則は削除した
 
-emapper 3.0.0-beta6 の出力には **`Description` 列が存在しない**（22列: query,
-seed_ortholog, evalue, score, eggNOG_OGs, tax_ceiling, farthest_donor_lineage,
-COG_category, Preferred_name, GOs, EC, KEGG_ko, KEGG_Pathway, KEGG_Module,
-KEGG_Reaction, KEGG_rclass, BRITE, KEGG_TC, CAZy, BiGG_Reaction, PFAMs,
-annotation_confidence）。したがって規則3は一度も発火せず、
-`product_source = eggnog` は **0件**である。
+初期の規則案には「InterPro が無く eggNOG の Description があればそれを使う」が
+あったが、**削除した。emapper 3.0.0-beta6 の出力に自由記述文を保持する列が
+存在せず、eggNOG から product を得る経路がそもそも無いためである。**
 
-規則3が対象にしえた行（InterPro エントリが無く eggNOG 行がある）は788件あり、
-それらは規則4に落ちて `hypothetical protein` のままになっている。
+実測した出力ヘッダは22列で、以下がその全部である。
+
+```
+query, seed_ortholog, evalue, score, eggNOG_OGs, tax_ceiling,
+farthest_donor_lineage, COG_category, Preferred_name, GOs, EC, KEGG_ko,
+KEGG_Pathway, KEGG_Module, KEGG_Reaction, KEGG_rclass, BRITE, KEGG_TC,
+CAZy, BiGG_Reaction, PFAMs, annotation_confidence
+```
+
+`desc` を含む列名は0件。ジョブ出力の他ファイル（`query.emapper.hits`,
+`query.emapper.seed_orthologs`）もアラインメント数値表で記述文を含まない。
+`.xlsx` / `.decorated.gff` は 404 で存在しない。
+
+**したがって `product_source` の取りうる値に `eggnog` は無い。**
+（`symbol_source` の `eggnog` は `Preferred_name` 由来で別物であり、残る。）
+
+この規則の対象になりえた行は788件ある（InterPro エントリが皆無の1,487件のうち
+eggNOG データ行を持つもの）。`eggnog_data_row = TRUE` 列と組み合わせて
+v1.1 で再抽出できる。eggNOG-mapper の再実行はしない。788件のうち
+`Preferred_name` を持つのは252件（32.0%）にとどまり、ウェブ版は UI 設定が
+実行コマンドに渡らない不具合があって列構成を変えるオプションが効く保証がなく、
+CLI 版は eggNOG DB のダウンロードが必要で帯域 0.7 MB/s では現実的でない。
+788件は v1.1 の Foldseek + ProstT5 対象と重なるため、そちらで拾う。
+
+### eggNOG の Preferred_name のうち594件は symbol に採らない
+
+`Preferred_name` が入っていても、遺伝子シンボルとして成立していない値は
+symbol に入れない。**パターンに合致するから除外するのではなく、
+遺伝子シンボルとして成立していないから除外する。**
+
+| `symbol_rejected_reason` | 判定 | 件数 | 例 |
+|---|---|---|---|
+| `loc_placeholder` | `^LOC[0-9]+$` | 523 | `LOC106765232` |
+| `foreign_locus_id` | バックスラッシュまたはコロンを含む | 13 | `Dgri\GH23632`, `zgc:110239`, `FGENESH:` |
+| `numeric_only` | 数字のみ | 57 | `100632670` |
+| `single_char` | 単一文字 | 1 | `Y` |
+| **計** | | **594** | |
+
+`LOC`+数字は NCBI の未 characterized 座位プレースホルダであり遺伝子シンボルではない。
+他生物の座位IDを藻類遺伝子のシンボルとして記載するのは虚偽であり、
+原則2・用途3に抵触する。数字列と単一文字も同様にシンボルとして成立していない。
+なお数字列が NCBI GeneID の数値部分である可能性は**推測にすぎず、根拠にしていない**。
+
+除外した値は捨てていない。`symbol_rejected` 列に元の値、
+`symbol_rejected_reason` 列に理由を保持している。
+
+#### 保持したもの
+
+同様のパターンに見えるが**保持した**ものが3群ある。
+
+- **`orf` を含む6件**（`C1orf74`, `C9orf78` 等）— HGNC の正規承認シンボルであり
+  流通実績がある。緑藻遺伝子への割り当てとして適切かは別問題だが、
+  値そのものは正規シンボルであり虚偽の記載にはあたらない。
+- **末尾が `_数字` の22件**（`AUGUSTUS-3.0.2_13662`, `Piso0_002424`, `hapE_2` 等）—
+  **一律保持した。これは正確性ではなくコストと非対称リスクによる判断である。**
+  「末尾が `_数字`」というパターンは除外すべき属性を捉えていない。予測ソフト出力ID
+  （`AUGUSTUS-3.0.2_13662`）とパラログ番号付きの正規シンボル（`hapE_2`）が
+  同じ正規表現に落ちる。22件を個別確認して十数件の座位IDを取り除く手間と、
+  判断を誤って正規シンボルを失うリスクを比べると割に合わない。
+  7,413件中の十数件については、`symbol_rejected` の網羅性より正規名を
+  消さないことを優先した。
+- **その他の記号を含む2件**（`U2A'`, `B''BETA`）— 正規の遺伝子シンボルである。
+
+#### 網羅していないこと
+
+除外対象外の2,281件にも `RvY_13858-1`（*Rhodotorula* の座位ID）のような値が
+残っている。**パターンによる網羅は原理的に不可能である。**
+`symbol_source = eggnog` で一括除外できる状態を保つことで足りるとした。
+これも判断であって、網羅性の主張ではない。
 
 ## 指標の定義
 
@@ -252,7 +322,7 @@ annotation_confidence）。したがって規則3は一度も発火せず、
 | **A'** | 同（**共通7ライブラリ由来のみ**。両経路で意味を揃えた値） | **5,833** | 78.69 % |
 | **B** | `Family` または `Domain` を1つ以上持つ配列数 | **5,595** | 75.48 % |
 | **C** | product が `hypothetical protein` のまま残った配列数 | **2,018** | 27.22 % |
-| **D** | symbol が空欄のまま残った配列数 | **2,090** | 28.19 % |
+| **D** | symbol が空欄のまま残った配列数 | **2,684** | 36.21 % |
 
 A と A' は母集団のライブラリ範囲が違うだけで、どちらも「InterPro エントリの有無」を
 数えている。B はさらに型を Family / Domain に限る。C と D は product / symbol 列を
@@ -269,19 +339,28 @@ A と A' は母集団のライブラリ範囲が違うだけで、どちらも�
 | `interpro_family` | 3,194 | 43.09 % |
 | `interpro_domain` | 1,203 | 16.23 % |
 | `interpro_domain_multi` | 998 | 13.46 % |
-| `eggnog` | **0** | 0.00 % |
 | `none` | 2,018 | 27.22 % |
 
 | `symbol_source` | 件数 | 割合 |
 |---|---|---|
 | `utex250a` | 2,418 | 32.62 % |
-| `eggnog` | 2,905 | 39.19 % |
-| `none` | 2,090 | 28.19 % |
+| `eggnog` | 2,311 | 31.17 % |
+| `none` | 2,684 | 36.21 % |
 
-`eggnog` 由来 2,905件のうち **523件は `LOC` + 数字の形**（例 `LOC107807905`）、
-3件はバックスラッシュを含む他生物の識別子（例 `Dgri\GH23632`）である。
-規則2どおり `Preferred_name` をそのまま入れた結果であり、遺伝子シンボルとしての
-情報量は低い。`symbol_source = eggnog` で一括して除外・再検討できる。
+## 追加した列
+
+| 列 | 内容 |
+|---|---|
+| `symbol_source` | `utex250a` / `eggnog` / `none` |
+| `product_source` | `interpro_family` / `interpro_domain` / `interpro_domain_multi` / `none` |
+| `dup_pair_id` | 重複遺伝子モデル群の識別子 `DUP0001`〜`DUP0397` |
+| `interpro_family_candidates` | Family 競合時の全候補（アクセッション昇順） |
+| `interpro_family_unresolved` | 上記が未解決なら `TRUE` |
+| `interpro_domain_all` | 重複排除後の全ドメインを N→C 順で |
+| `interpro_structural_only` | 構造的手がかりのみなら `TRUE` |
+| `symbol_rejected` | symbol に採らなかった `Preferred_name` の値 |
+| `symbol_rejected_reason` | `loc_placeholder` / `foreign_locus_id` / `numeric_only` / `single_char` |
+| `eggnog_data_row` | eggNOG のデータ行があれば `TRUE`（6,588件） |
 
 ## eggNOG の Pfam の扱い
 
@@ -323,15 +402,16 @@ InterProScan が提供できないため、`annotation/UTEX25_gene_table_eggnog.
 
 ## v1.1 への申し送り
 
-以下の3群は Foldseek + ProstT5（Heinzinger 2024,
+以下は Foldseek + ProstT5（Heinzinger 2024,
 DOI: 10.1093/nargab/lqae150）で最も改善が見込める対象である。
 いずれも列で再抽出できるようにしてある。
 
-| 群 | 列 | 件数 |
+| 群 | 抽出条件 | 件数 |
 |---|---|---|
 | Family 競合により未確定 | `interpro_family_unresolved = TRUE` | 200 |
 | 構造的手がかりのみ | `interpro_structural_only = TRUE` | 331 |
-| InterPro エントリなし | `annotation/UTEX25_interpro.tsv` の `n_domains = 0` かつ InterPro 列が空 | 1,487 |
+| InterPro エントリなし | `annotation/UTEX25_interpro.tsv` の InterPro 列が空 | 1,487 |
+| うち eggNOG データ行あり | 上記 ∩ `eggnog_data_row = TRUE` | 788 |
 
 PANTHER を導入した時点で、`interpro_family_unresolved` の200件は
 一括して見直すこと（経路依存が解消されるため原則4の制約が外れる）。
