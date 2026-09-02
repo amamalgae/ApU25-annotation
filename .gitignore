@@ -8,3 +8,5 @@ hap2.faa
 U25.fa
 ann/
 miniprot/
+__pycache__/
+*.pyc

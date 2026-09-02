@@ -1,0 +1,1432 @@
+{
+  "endpoint": "https://www.ebi.ac.uk/interpro/matches/api/matches",
+  "md5": "CDF15EF1F81A36D798B6A0AE6A4AA967",
+  "body": {
+    "results": [
+      {
+        "md5": "CDF15EF1F81A36D798B6A0AE6A4AA967",
+        "matches": [
+          {
+            "signature": {
+              "accession": "G3DSA:1.20.120.1190",
+              "name": null,
+              "description": null,
+              "type": "Homologous_superfamily",
+              "signatureLibraryRelease": {
+                "library": "CATH-Gene3D",
+                "version": "4.3.0"
+              },
+              "entry": null
+            },
+            "model-ac": "2e87A01",
+            "source": "CATH-Gene3D",
+            "locations": [
+              {
+                "start": 4,
+                "end": 161,
+                "location-fragments": [
+                  {
+                    "start": 4,
+                    "end": 161,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 4,
+                "hmmEnd": 161,
+                "hmmLength": 161,
+                "hmmBounds": "N_TERMINAL_COMPLETE",
+                "envelopeStart": 4,
+                "envelopeEnd": 162,
+                "evalue": 1.4e-58,
+                "score": 199.2
+              }
+            ],
+            "score": 200.3,
+            "evalue": 6.5e-59
+          },
+          {
+            "signature": {
+              "accession": "G3DSA:3.40.50.300",
+              "name": null,
+              "description": "P-loop containing nucleotide triphosphate hydrolases",
+              "type": "Homologous_superfamily",
+              "signatureLibraryRelease": {
+                "library": "CATH-Gene3D",
+                "version": "4.3.0"
+              },
+              "entry": {
+                "accession": "IPR027417",
+                "name": "P-loop_NTPase",
+                "description": "P-loop containing nucleoside triphosphate hydrolase",
+                "type": "Homologous_superfamily",
+                "parent": null
+              }
+            },
+            "model-ac": "2qu8A00",
+            "source": "CATH-Gene3D",
+            "locations": [
+              {
+                "start": 162,
+                "end": 373,
+                "location-fragments": [
+                  {
+                    "start": 162,
+                    "end": 373,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 2,
+                "hmmEnd": 191,
+                "hmmLength": 207,
+                "hmmBounds": "C_TERMINAL_COMPLETE",
+                "envelopeStart": 161,
+                "envelopeEnd": 373,
+                "evalue": 9.3e-49,
+                "score": 167.7
+              }
+            ],
+            "score": 168.4,
+            "evalue": 5.8e-49
+          },
+          {
+            "signature": {
+              "accession": "G3DSA:3.40.50.300:FF:000496",
+              "name": null,
+              "description": "Nucleolar GTP-binding protein 1",
+              "type": "Region",
+              "signatureLibraryRelease": {
+                "library": "CATH-FunFam",
+                "version": "4.3.0"
+              },
+              "entry": null
+            },
+            "model-ac": "3.40.50.300-FF-000496",
+            "source": "CATH-FunFam",
+            "locations": [
+              {
+                "start": 162,
+                "end": 373,
+                "location-fragments": [
+                  {
+                    "start": 162,
+                    "end": 373,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 1,
+                "hmmEnd": 198,
+                "hmmLength": 198,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 162,
+                "envelopeEnd": 373,
+                "evalue": 2.6e-102,
+                "score": 342.4
+              }
+            ],
+            "score": 342.9,
+            "evalue": 1.9e-102
+          },
+          {
+            "signature": {
+              "accession": "G3DSA:1.20.120.1190:FF:000001",
+              "name": null,
+              "description": "Nucleolar GTP-binding protein 1",
+              "type": "Region",
+              "signatureLibraryRelease": {
+                "library": "CATH-FunFam",
+                "version": "4.3.0"
+              },
+              "entry": null
+            },
+            "model-ac": "1.20.120.1190-FF-000001",
+            "source": "CATH-FunFam",
+            "locations": [
+              {
+                "start": 3,
+                "end": 161,
+                "location-fragments": [
+                  {
+                    "start": 3,
+                    "end": 161,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 2,
+                "hmmEnd": 159,
+                "hmmLength": 159,
+                "hmmBounds": "C_TERMINAL_COMPLETE",
+                "envelopeStart": 3,
+                "envelopeEnd": 161,
+                "evalue": 2.4e-85,
+                "score": 286.2
+              }
+            ],
+            "score": 286.9,
+            "evalue": 1.5e-85
+          },
+          {
+            "signature": {
+              "accession": "cd01897",
+              "name": "NOG",
+              "description": "Nucleolar GTP-binding protein (NOG)",
+              "type": "Domain",
+              "signatureLibraryRelease": {
+                "library": "CDD",
+                "version": "3.21"
+              },
+              "entry": null
+            },
+            "model-ac": "cd01897",
+            "source": "CDD",
+            "locations": [
+              {
+                "start": 169,
+                "end": 354,
+                "location-fragments": [
+                  {
+                    "start": 169,
+                    "end": 354,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "evalue": 6.029e-102,
+                "score": 306.409,
+                "sites": [
+                  {
+                    "description": "GTP/Mg2+ binding site",
+                    "numLocations": 11,
+                    "siteLocations": [
+                      {
+                        "start": 180,
+                        "end": 180,
+                        "residue": "G"
+                      },
+                      {
+                        "start": 290,
+                        "end": 290,
+                        "residue": "K"
+                      },
+                      {
+                        "start": 178,
+                        "end": 178,
+                        "residue": "N"
+                      },
+                      {
+                        "start": 182,
+                        "end": 182,
+                        "residue": "S"
+                      },
+                      {
+                        "start": 292,
+                        "end": 292,
+                        "residue": "D"
+                      },
+                      {
+                        "start": 181,
+                        "end": 181,
+                        "residue": "K"
+                      },
+                      {
+                        "start": 183,
+                        "end": 183,
+                        "residue": "S"
+                      },
+                      {
+                        "start": 335,
+                        "end": 335,
+                        "residue": "S"
+                      },
+                      {
+                        "start": 289,
+                        "end": 289,
+                        "residue": "N"
+                      },
+                      {
+                        "start": 337,
+                        "end": 337,
+                        "residue": "L"
+                      },
+                      {
+                        "start": 336,
+                        "end": 336,
+                        "residue": "T"
+                      }
+                    ]
+                  },
+                  {
+                    "description": "G2 box",
+                    "numLocations": 1,
+                    "siteLocations": [
+                      {
+                        "start": 202,
+                        "end": 202,
+                        "residue": "T"
+                      }
+                    ]
+                  },
+                  {
+                    "description": "G3 box",
+                    "numLocations": 4,
+                    "siteLocations": [
+                      {
+                        "start": 222,
+                        "end": 222,
+                        "residue": "T"
+                      },
+                      {
+                        "start": 224,
+                        "end": 224,
+                        "residue": "G"
+                      },
+                      {
+                        "start": 223,
+                        "end": 223,
+                        "residue": "P"
+                      },
+                      {
+                        "start": 221,
+                        "end": 221,
+                        "residue": "D"
+                      }
+                    ]
+                  },
+                  {
+                    "description": "G5 box",
+                    "numLocations": 3,
+                    "siteLocations": [
+                      {
+                        "start": 335,
+                        "end": 335,
+                        "residue": "S"
+                      },
+                      {
+                        "start": 337,
+                        "end": 337,
+                        "residue": "L"
+                      },
+                      {
+                        "start": 336,
+                        "end": 336,
+                        "residue": "T"
+                      }
+                    ]
+                  },
+                  {
+                    "description": "Switch II region",
+                    "numLocations": 24,
+                    "siteLocations": [
+                      {
+                        "start": 229,
+                        "end": 229,
+                        "residue": "P"
+                      },
+                      {
+                        "start": 234,
+                        "end": 234,
+                        "residue": "N"
+                      },
+                      {
+                        "start": 235,
+                        "end": 235,
+                        "residue": "T"
+                      },
+                      {
+                        "start": 227,
+                        "end": 227,
+                        "residue": "D"
+                      },
+                      {
+                        "start": 236,
+                        "end": 236,
+                        "residue": "I"
+                      },
+                      {
+                        "start": 231,
+                        "end": 231,
+                        "residue": "E"
+                      },
+                      {
+                        "start": 224,
+                        "end": 224,
+                        "residue": "G"
+                      },
+                      {
+                        "start": 228,
+                        "end": 228,
+                        "residue": "R"
+                      },
+                      {
+                        "start": 244,
+                        "end": 244,
+                        "residue": "L"
+                      },
+                      {
+                        "start": 225,
+                        "end": 225,
+                        "residue": "I"
+                      },
+                      {
+                        "start": 241,
+                        "end": 241,
+                        "residue": "I"
+                      },
+                      {
+                        "start": 245,
+                        "end": 245,
+                        "residue": "A"
+                      },
+                      {
+                        "start": 226,
+                        "end": 226,
+                        "residue": "L"
+                      },
+                      {
+                        "start": 243,
+                        "end": 243,
+                        "residue": "A"
+                      },
+                      {
+                        "start": 247,
+                        "end": 247,
+                        "residue": "L"
+                      },
+                      {
+                        "start": 233,
+                        "end": 233,
+                        "residue": "R"
+                      },
+                      {
+                        "start": 230,
+                        "end": 230,
+                        "residue": "L"
+                      },
+                      {
+                        "start": 237,
+                        "end": 237,
+                        "residue": "E"
+                      },
+                      {
+                        "start": 239,
+                        "end": 239,
+                        "residue": "Q"
+                      },
+                      {
+                        "start": 238,
+                        "end": 238,
+                        "residue": "M"
+                      },
+                      {
+                        "start": 242,
+                        "end": 242,
+                        "residue": "T"
+                      },
+                      {
+                        "start": 246,
+                        "end": 246,
+                        "residue": "H"
+                      },
+                      {
+                        "start": 240,
+                        "end": 240,
+                        "residue": "S"
+                      },
+                      {
+                        "start": 232,
+                        "end": 232,
+                        "residue": "E"
+                      }
+                    ]
+                  },
+                  {
+                    "description": "G1 box",
+                    "numLocations": 8,
+                    "siteLocations": [
+                      {
+                        "start": 180,
+                        "end": 180,
+                        "residue": "G"
+                      },
+                      {
+                        "start": 178,
+                        "end": 178,
+                        "residue": "N"
+                      },
+                      {
+                        "start": 182,
+                        "end": 182,
+                        "residue": "S"
+                      },
+                      {
+                        "start": 175,
+                        "end": 175,
+                        "residue": "G"
+                      },
+                      {
+                        "start": 181,
+                        "end": 181,
+                        "residue": "K"
+                      },
+                      {
+                        "start": 176,
+                        "end": 176,
+                        "residue": "Y"
+                      },
+                      {
+                        "start": 177,
+                        "end": 177,
+                        "residue": "P"
+                      },
+                      {
+                        "start": 179,
+                        "end": 179,
+                        "residue": "V"
+                      }
+                    ]
+                  },
+                  {
+                    "description": "Switch I region",
+                    "numLocations": 15,
+                    "siteLocations": [
+                      {
+                        "start": 197,
+                        "end": 197,
+                        "residue": "P"
+                      },
+                      {
+                        "start": 193,
+                        "end": 193,
+                        "residue": "V"
+                      },
+                      {
+                        "start": 191,
+                        "end": 191,
+                        "residue": "A"
+                      },
+                      {
+                        "start": 202,
+                        "end": 202,
+                        "residue": "T"
+                      },
+                      {
+                        "start": 203,
+                        "end": 203,
+                        "residue": "K"
+                      },
+                      {
+                        "start": 200,
+                        "end": 200,
+                        "residue": "F"
+                      },
+                      {
+                        "start": 201,
+                        "end": 201,
+                        "residue": "T"
+                      },
+                      {
+                        "start": 204,
+                        "end": 204,
+                        "residue": "S"
+                      },
+                      {
+                        "start": 205,
+                        "end": 205,
+                        "residue": "L"
+                      },
+                      {
+                        "start": 196,
+                        "end": 196,
+                        "residue": "Q"
+                      },
+                      {
+                        "start": 199,
+                        "end": 199,
+                        "residue": "A"
+                      },
+                      {
+                        "start": 194,
+                        "end": 194,
+                        "residue": "E"
+                      },
+                      {
+                        "start": 192,
+                        "end": 192,
+                        "residue": "D"
+                      },
+                      {
+                        "start": 198,
+                        "end": 198,
+                        "residue": "Y"
+                      },
+                      {
+                        "start": 195,
+                        "end": 195,
+                        "residue": "V"
+                      }
+                    ]
+                  },
+                  {
+                    "description": "G4 box",
+                    "numLocations": 4,
+                    "siteLocations": [
+                      {
+                        "start": 290,
+                        "end": 290,
+                        "residue": "K"
+                      },
+                      {
+                        "start": 291,
+                        "end": 291,
+                        "residue": "T"
+                      },
+                      {
+                        "start": 292,
+                        "end": 292,
+                        "residue": "D"
+                      },
+                      {
+                        "start": 289,
+                        "end": 289,
+                        "residue": "N"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": {
+              "accession": "mobidb-lite",
+              "name": "disorder_prediction",
+              "description": "Consensus disorder prediction",
+              "type": "Region",
+              "signatureLibraryRelease": {
+                "library": "MobiDB-lite",
+                "version": "4.0"
+              },
+              "entry": null
+            },
+            "model-ac": "mobidb-lite",
+            "source": "MobiDB-lite",
+            "locations": [
+              {
+                "start": 512,
+                "end": 537,
+                "location-fragments": [
+                  {
+                    "start": 512,
+                    "end": 537,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "sequence-feature": null
+              },
+              {
+                "start": 554,
+                "end": 672,
+                "location-fragments": [
+                  {
+                    "start": 554,
+                    "end": 672,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "sequence-feature": null
+              },
+              {
+                "start": 561,
+                "end": 572,
+                "location-fragments": [
+                  {
+                    "start": 561,
+                    "end": 572,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "sequence-feature": "Positive Polyelectrolyte"
+              },
+              {
+                "start": 593,
+                "end": 602,
+                "location-fragments": [
+                  {
+                    "start": 593,
+                    "end": 602,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "sequence-feature": "Positive Polyelectrolyte"
+              },
+              {
+                "start": 643,
+                "end": 656,
+                "location-fragments": [
+                  {
+                    "start": 643,
+                    "end": 656,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "sequence-feature": "Polyampholyte"
+              },
+              {
+                "start": 657,
+                "end": 666,
+                "location-fragments": [
+                  {
+                    "start": 657,
+                    "end": 666,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "sequence-feature": "Positive Polyelectrolyte"
+              }
+            ]
+          },
+          {
+            "signature": {
+              "accession": "PTHR45759",
+              "name": null,
+              "description": "NUCLEOLAR GTP-BINDING PROTEIN 1",
+              "type": "Family",
+              "signatureLibraryRelease": {
+                "library": "PANTHER",
+                "version": "19.0"
+              },
+              "entry": null
+            },
+            "model-ac": "PTHR45759",
+            "source": "PANTHER",
+            "locations": [
+              {
+                "start": 3,
+                "end": 592,
+                "location-fragments": [
+                  {
+                    "start": 3,
+                    "end": 592,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 4,
+                "hmmEnd": 418,
+                "hmmLength": 0,
+                "hmmBounds": "INCOMPLETE",
+                "envelopeStart": 1,
+                "envelopeEnd": 648
+              }
+            ],
+            "score": 627.4,
+            "evalue": 0.0,
+            "ancestralNode": null
+          },
+          {
+            "signature": {
+              "accession": "PIRSF038919",
+              "name": "NOG1",
+              "description": "Nucleolar GTP-binding protein 1",
+              "type": "Family",
+              "signatureLibraryRelease": {
+                "library": "PIRSF",
+                "version": "3.10"
+              },
+              "entry": {
+                "accession": "IPR024926",
+                "name": "NOG1",
+                "description": "Nucleolar GTP-binding protein 1",
+                "type": "Family",
+                "parent": null
+              }
+            },
+            "model-ac": "PIRSF038919",
+            "source": "PIRSF",
+            "locations": [
+              {
+                "start": 2,
+                "end": 672,
+                "location-fragments": [
+                  {
+                    "start": 2,
+                    "end": 672,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 3,
+                "hmmEnd": 655,
+                "hmmLength": 655,
+                "hmmBounds": "C_TERMINAL_COMPLETE",
+                "envelopeStart": 1,
+                "envelopeEnd": 672,
+                "evalue": 0.0,
+                "score": 883.1
+              }
+            ],
+            "score": 883.1,
+            "evalue": 0.0
+          },
+          {
+            "signature": {
+              "accession": "PIRSR006809-1",
+              "name": "PIRSR006809-1",
+              "description": null,
+              "type": "Region",
+              "signatureLibraryRelease": {
+                "library": "PIRSR",
+                "version": "2025_05"
+              },
+              "entry": null
+            },
+            "model-ac": "PIRSR006809-1",
+            "source": "PIRSR",
+            "locations": [
+              {
+                "start": 170,
+                "end": 344,
+                "location-fragments": [
+                  {
+                    "start": 170,
+                    "end": 344,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 179,
+                "hmmEnd": 332,
+                "hmmLength": 341,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 1,
+                "envelopeEnd": 2,
+                "evalue": 2.4e-09,
+                "score": 34.4,
+                "sites": [
+                  {
+                    "description": "NP_BIND: GTP.",
+                    "numLocations": 5,
+                    "siteLocations": [
+                      {
+                        "start": 289,
+                        "end": 292,
+                        "residue": "NKTD"
+                      },
+                      {
+                        "start": 175,
+                        "end": 182,
+                        "residue": "GYPNVGKS"
+                      },
+                      {
+                        "start": 221,
+                        "end": 224,
+                        "residue": "DTPG"
+                      },
+                      {
+                        "start": 335,
+                        "end": 337,
+                        "residue": "STL"
+                      },
+                      {
+                        "start": 200,
+                        "end": 204,
+                        "residue": "FTTKS"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "score": 34.4,
+            "evalue": 2.4e-09
+          },
+          {
+            "signature": {
+              "accession": "PIRSR038134-2",
+              "name": "PIRSR038134-2",
+              "description": null,
+              "type": "Region",
+              "signatureLibraryRelease": {
+                "library": "PIRSR",
+                "version": "2025_05"
+              },
+              "entry": null
+            },
+            "model-ac": "PIRSR038134-2",
+            "source": "PIRSR",
+            "locations": [
+              {
+                "start": 154,
+                "end": 254,
+                "location-fragments": [
+                  {
+                    "start": 154,
+                    "end": 254,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 21,
+                "hmmEnd": 122,
+                "hmmLength": 285,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 1,
+                "envelopeEnd": 2,
+                "evalue": 0.0054,
+                "score": 13.6,
+                "sites": [
+                  {
+                    "description": "METAL: Magnesium.",
+                    "numLocations": 1,
+                    "siteLocations": [
+                      {
+                        "start": 182,
+                        "end": 182,
+                        "residue": "S"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "score": 13.6,
+            "evalue": 0.0054
+          },
+          {
+            "signature": {
+              "accession": "PIRSR603373-2",
+              "name": "PIRSR603373-2",
+              "description": null,
+              "type": "Region",
+              "signatureLibraryRelease": {
+                "library": "PIRSR",
+                "version": "2025_05"
+              },
+              "entry": null
+            },
+            "model-ac": "PIRSR603373-2",
+            "source": "PIRSR",
+            "locations": [
+              {
+                "start": 172,
+                "end": 319,
+                "location-fragments": [
+                  {
+                    "start": 172,
+                    "end": 319,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 7,
+                "hmmEnd": 146,
+                "hmmLength": 674,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 1,
+                "envelopeEnd": 2,
+                "evalue": 7e-08,
+                "score": 29.2,
+                "sites": [
+                  {
+                    "description": "BINDING: Mg(2+)",
+                    "numLocations": 2,
+                    "siteLocations": [
+                      {
+                        "start": 186,
+                        "end": 186,
+                        "residue": "N"
+                      },
+                      {
+                        "start": 189,
+                        "end": 189,
+                        "residue": "T"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "score": 29.2,
+            "evalue": 7e-08
+          },
+          {
+            "signature": {
+              "accession": "PIRSR006230-1",
+              "name": "PIRSR006230-1",
+              "description": null,
+              "type": "Region",
+              "signatureLibraryRelease": {
+                "library": "PIRSR",
+                "version": "2025_05"
+              },
+              "entry": null
+            },
+            "model-ac": "PIRSR006230-1",
+            "source": "PIRSR",
+            "locations": [
+              {
+                "start": 167,
+                "end": 234,
+                "location-fragments": [
+                  {
+                    "start": 167,
+                    "end": 234,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 121,
+                "hmmEnd": 186,
+                "hmmLength": 289,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 1,
+                "envelopeEnd": 2,
+                "evalue": 1.1e-08,
+                "score": 32.5,
+                "sites": [
+                  {
+                    "description": "NP_BIND: GTP.",
+                    "numLocations": 1,
+                    "siteLocations": [
+                      {
+                        "start": 178,
+                        "end": 183,
+                        "residue": "NVGKSS"
+                      }
+                    ]
+                  },
+                  {
+                    "description": "BINDING: GTP; via amide nitrogen.",
+                    "numLocations": 1,
+                    "siteLocations": [
+                      {
+                        "start": 224,
+                        "end": 224,
+                        "residue": "G"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "start": 274,
+                "end": 296,
+                "location-fragments": [
+                  {
+                    "start": 274,
+                    "end": 296,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 44,
+                "hmmEnd": 67,
+                "hmmLength": 289,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 1,
+                "envelopeEnd": 2,
+                "evalue": 3.4,
+                "score": 4.6,
+                "sites": [
+                  {
+                    "description": "NP_BIND: GTP.",
+                    "numLocations": 1,
+                    "siteLocations": [
+                      {
+                        "start": 289,
+                        "end": 292,
+                        "residue": "NKTD"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "score": 4.6,
+            "evalue": 3.4
+          },
+          {
+            "signature": {
+              "accession": "PIRSR603373-1",
+              "name": "PIRSR603373-1",
+              "description": null,
+              "type": "Region",
+              "signatureLibraryRelease": {
+                "library": "PIRSR",
+                "version": "2025_05"
+              },
+              "entry": null
+            },
+            "model-ac": "PIRSR603373-1",
+            "source": "PIRSR",
+            "locations": [
+              {
+                "start": 172,
+                "end": 319,
+                "location-fragments": [
+                  {
+                    "start": 172,
+                    "end": 319,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 7,
+                "hmmEnd": 146,
+                "hmmLength": 674,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 1,
+                "envelopeEnd": 2,
+                "evalue": 7e-08,
+                "score": 29.2,
+                "sites": [
+                  {
+                    "description": "BINDING: GTP",
+                    "numLocations": 3,
+                    "siteLocations": [
+                      {
+                        "start": 221,
+                        "end": 224,
+                        "residue": "DTPG"
+                      },
+                      {
+                        "start": 289,
+                        "end": 292,
+                        "residue": "NKTD"
+                      },
+                      {
+                        "start": 175,
+                        "end": 182,
+                        "residue": "GYPNVGKS"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "score": 29.2,
+            "evalue": 7e-08
+          },
+          {
+            "signature": {
+              "accession": "PIRSR006809-2",
+              "name": "PIRSR006809-2",
+              "description": null,
+              "type": "Region",
+              "signatureLibraryRelease": {
+                "library": "PIRSR",
+                "version": "2025_05"
+              },
+              "entry": null
+            },
+            "model-ac": "PIRSR006809-2",
+            "source": "PIRSR",
+            "locations": [
+              {
+                "start": 170,
+                "end": 344,
+                "location-fragments": [
+                  {
+                    "start": 170,
+                    "end": 344,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 179,
+                "hmmEnd": 332,
+                "hmmLength": 341,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 1,
+                "envelopeEnd": 2,
+                "evalue": 2.4e-09,
+                "score": 34.4,
+                "sites": [
+                  {
+                    "description": "METAL: Magnesium.",
+                    "numLocations": 2,
+                    "siteLocations": [
+                      {
+                        "start": 182,
+                        "end": 182,
+                        "residue": "S"
+                      },
+                      {
+                        "start": 202,
+                        "end": 202,
+                        "residue": "T"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "score": 34.4,
+            "evalue": 2.4e-09
+          },
+          {
+            "signature": {
+              "accession": "PR00326",
+              "name": "GTP1OBG",
+              "description": null,
+              "type": "Family",
+              "signatureLibraryRelease": {
+                "library": "PRINTS",
+                "version": "42.0"
+              },
+              "entry": {
+                "accession": "IPR006073",
+                "name": "GTP-bd",
+                "description": "GTP binding domain",
+                "type": "Domain",
+                "parent": null
+              }
+            },
+            "model-ac": "PR00326",
+            "source": "PRINTS",
+            "locations": [
+              {
+                "start": 171,
+                "end": 191,
+                "location-fragments": [
+                  {
+                    "start": 171,
+                    "end": 191,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "score": 40.72,
+                "pvalue": 2.36e-09,
+                "motifNumber": 1
+              },
+              {
+                "start": 192,
+                "end": 210,
+                "location-fragments": [
+                  {
+                    "start": 192,
+                    "end": 210,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "score": 30.13,
+                "pvalue": 0.00801,
+                "motifNumber": 2
+              },
+              {
+                "start": 219,
+                "end": 234,
+                "location-fragments": [
+                  {
+                    "start": 219,
+                    "end": 234,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "score": 23.6,
+                "pvalue": 0.00969,
+                "motifNumber": 3
+              }
+            ],
+            "evalue": 2.8e-07,
+            "graphscan": "IIi."
+          },
+          {
+            "signature": {
+              "accession": "PF08155",
+              "name": "NOGCT",
+              "description": "NOGCT (NUC087) domain",
+              "type": "Domain",
+              "signatureLibraryRelease": {
+                "library": "Pfam",
+                "version": "38.2"
+              },
+              "entry": {
+                "accession": "IPR012973",
+                "name": "NOG_C",
+                "description": "NOG, C-terminal",
+                "type": "Domain",
+                "parent": null
+              }
+            },
+            "model-ac": "PF08155",
+            "source": "Pfam",
+            "locations": [
+              {
+                "start": 407,
+                "end": 460,
+                "location-fragments": [
+                  {
+                    "start": 407,
+                    "end": 460,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 1,
+                "hmmEnd": 54,
+                "hmmLength": 54,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 407,
+                "envelopeEnd": 460,
+                "evalue": 2.2e-23,
+                "score": 93.3
+              }
+            ],
+            "score": 94.2,
+            "evalue": 1.2e-23
+          },
+          {
+            "signature": {
+              "accession": "PF17835",
+              "name": "NOG1_N",
+              "description": "NOG1 N-terminal helical domain",
+              "type": "Domain",
+              "signatureLibraryRelease": {
+                "library": "Pfam",
+                "version": "38.2"
+              },
+              "entry": {
+                "accession": "IPR041623",
+                "name": "NOG1_N",
+                "description": "NOG1, N-terminal helical domain",
+                "type": "Domain",
+                "parent": null
+              }
+            },
+            "model-ac": "PF17835",
+            "source": "Pfam",
+            "locations": [
+              {
+                "start": 6,
+                "end": 165,
+                "location-fragments": [
+                  {
+                    "start": 6,
+                    "end": 165,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 1,
+                "hmmEnd": 160,
+                "hmmLength": 160,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 6,
+                "envelopeEnd": 165,
+                "evalue": 1.4e-50,
+                "score": 183.0
+              }
+            ],
+            "score": 184.0,
+            "evalue": 7.1e-51
+          },
+          {
+            "signature": {
+              "accession": "PF06858",
+              "name": "NOG1",
+              "description": "Nucleolar GTP-binding protein 1 (NOG1)",
+              "type": "Family",
+              "signatureLibraryRelease": {
+                "library": "Pfam",
+                "version": "38.2"
+              },
+              "entry": {
+                "accession": "IPR010674",
+                "name": "NOG1_Rossman_fold_dom",
+                "description": "Nucleolar GTP-binding protein 1, Rossman-fold domain",
+                "type": "Domain",
+                "parent": null
+              }
+            },
+            "model-ac": "PF06858",
+            "source": "Pfam",
+            "locations": [
+              {
+                "start": 235,
+                "end": 292,
+                "location-fragments": [
+                  {
+                    "start": 235,
+                    "end": 292,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmStart": 1,
+                "hmmEnd": 58,
+                "hmmLength": 58,
+                "hmmBounds": "COMPLETE",
+                "envelopeStart": 235,
+                "envelopeEnd": 292,
+                "evalue": 1.2e-24,
+                "score": 97.2
+              }
+            ],
+            "score": 98.1,
+            "evalue": 6.1e-25
+          },
+          {
+            "signature": {
+              "accession": "SSF52540",
+              "name": null,
+              "description": "P-loop containing nucleoside triphosphate hydrolases",
+              "type": "Homologous_superfamily",
+              "signatureLibraryRelease": {
+                "library": "SUPERFAMILY",
+                "version": "1.75"
+              },
+              "entry": {
+                "accession": "IPR027417",
+                "name": "P-loop_NTPase",
+                "description": "P-loop containing nucleoside triphosphate hydrolase",
+                "type": "Homologous_superfamily",
+                "parent": null
+              }
+            },
+            "model-ac": "0042471",
+            "source": "SUPERFAMILY",
+            "locations": [
+              {
+                "start": 48,
+                "end": 344,
+                "location-fragments": [
+                  {
+                    "start": 48,
+                    "end": 344,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "hmmLength": 273,
+                "evalue": 6.51e-36
+              }
+            ]
+          },
+          {
+            "signature": {
+              "accession": "PS51710",
+              "name": "G_OBG",
+              "description": "OBG-type guanine nucleotide-binding (G) domain profile",
+              "type": "Domain",
+              "signatureLibraryRelease": {
+                "library": "PROSITE profiles",
+                "version": "2026_01"
+              },
+              "entry": {
+                "accession": "IPR031167",
+                "name": "G_OBG",
+                "description": "OBG-type guanine nucleotide-binding (G) domain",
+                "type": "Domain",
+                "parent": "IPR006073"
+              }
+            },
+            "model-ac": "PS51710",
+            "source": "PROSITE profiles",
+            "locations": [
+              {
+                "start": 169,
+                "end": 354,
+                "location-fragments": [
+                  {
+                    "start": 169,
+                    "end": 354,
+                    "dc-status": "CONTINUOUS"
+                  }
+                ],
+                "score": 38.208473,
+                "cigarAlignment": "44M1D23M4I11M2D13M7D11M1D1M2I17M7I17M9I27M"
+              }
+            ]
+          }
+        ],
+        "found": true
+      }
+    ]
+  }
+}

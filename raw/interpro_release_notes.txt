@@ -1,0 +1,89 @@
+Release Notes
+
+======================================
+
+Release 109.0, 11th June 2026
+
+New features include:
+
+* The addition of 2835 InterPro entries.
+
+* An update to HAMAP (2026_01), NCBIFAM (19.0), PROSITE patterns (2026_01), PROSITE profiles (2026_01), Pfam (38.2).
+
+* Integration of 2969 new methods from the CATH-Gene3D (4), CDD (20), HAMAP (3), NCBIFAM (398), PANTHER (6), PROSITE profiles (17), Pfam (2518), SFLD (3) databases.
+
+Contents and coverage of InterPro 109.0
+InterPro protein matches are now calculated for all UniProtKB and UniParc
+proteins. The following statistics are for all UniProtKB proteins.
+InterPro release 109.0 contains 54190 entries, representing:
+           Active site    133
+          Binding site     82
+        Conserved site    775
+                Domain  21357
+                Family  27926
+Homologous superfamily   3510
+                   Ptm     17
+                Repeat    390
+
+
+
+Last Entry IPR064509
+
+InterPro cites 65466 publications in PubMed.
+
+Member database information
+
+Signature Database     Version              Signatures*          Integrated Signatures**
+       CATH-Gene3D       4.3.0                     6631                             2823
+               CDD        3.21                    19902                             5059
+             HAMAP     2026_01                     2394                             2389
+           NCBIFAM        19.0                    18511                             7447
+           PANTHER        19.0                    15683                            10460
+             PIRSF        3.10                     3285                             3221
+            PRINTS        42.0                     2106                             1937
+  PROSITE patterns     2026_01                     1311                             1282
+  PROSITE profiles     2026_01                     1419                             1320
+              Pfam        38.2                    30134                            29105
+              SFLD           4                      303                              163
+             SMART         9.0                     1322                             1276
+       SUPERFAMILY        1.75                     2019                             1649
+
+
+
+* Some signatures may not have matches to UniProtKB proteins.
+
+** Not all signatures of a member database may be integrated at the time
+of an InterPro release.
+
+We use MobiDB-lite, a derivative of the MobiDB database, to provide consensus annotation of long-range intrinsic disorder in protein sequences.
+Read more about MobiDB-lite in Bioinformatics, 33(9), 2017, 1402–1404, (doi: 10.1093/bioinformatics/btx015).
+
+
+   Sequence Database     Version                Count                        Count of proteins matching        
+                                                                       any signature      integrated signatures
+           UniProtKB     2026_02            149810139                126692892 (84.6%)      123698122 (82.6%)
+    UniProtKB/TrEMBL     2026_02            149234636                126131641 (84.5%)      123138302 (82.5%)
+UniProtKB/Swiss-Prot     2026_02               575503                   561251 (97.5%)         559820 (97.3%)
+
+
+Total number of proteins included in InterPro
+
+Canonical sequences: 149810139
+Splice variants: 67371
+Total proteins: 149877510
+
+InterPro to GO
+
+*         Number of GO terms mapped to InterPro  - 30122
+
+
+Feedback
+We need your help and would welcome any feedback. If you find errors or
+omissions please let us know. You can contact us at:
+https://www.ebi.ac.uk/support/interpro-general-query
+Copyright
+InterPro - Integrated Resource Of Protein Domains And Functional Sites.
+Copyright (C) 2026 The InterPro Consortium. This manual and the
+accompanying database may be copied and redistributed freely, without
+advance permission, provided that this Copyright statement is reproduced
+with each copy.
